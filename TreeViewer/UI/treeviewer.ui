@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>mainwwin_treeviewer</class>
+ <widget class="QMainWindow" name="mainwwin_treeviewer">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Tree Viewer</string>
+  </property>
+  <widget class="QWidget" name="wid_centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QTabWidget" name="tabwid_viewmodes">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tree">
+       <attribute name="title">
+        <string>Tree View</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QWidget" name="wid2" native="true">
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <spacer name="vspacer">
+             <property name="orientation">
+              <enum>Qt::Orientation::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pb_ancestors">
+             <property name="text">
+              <string>Ancestors</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pb_descendants">
+             <property name="text">
+              <string>Descendants</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="vspacer2">
+             <property name="orientation">
+              <enum>Qt::Orientation::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTreeView" name="treeView"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="index">
+       <attribute name="title">
+        <string>Index View</string>
+       </attribute>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QWidget" name="wid" native="true">
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <spacer name="hspacer">
+         <property name="orientation">
+          <enum>Qt::Orientation::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pb_load">
+         <property name="text">
+          <string>Load Tree...</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>36</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
