@@ -13,7 +13,8 @@ from datetime import datetime, timedelta
 ########################################################### Person Class ###############################################
 class Person:
     """
-    Instances of this class keep track of a person's natal information. It is inmutable for hasing purposes.
+    Instances of this class keep track of a person's natal information. They are immutable. They are analogues of positions
+    in the positional list ADT.
     """
 
     __slots__ = ( '_name', '_first_last', '_second_last', '_sex', '_dob', '_pob')
@@ -23,17 +24,18 @@ class Person:
 
         # If not enough data is provided, we launch input prompt.
         if sex is None or dob is None or first_name is None or ( second_last is None and first_last is None):
+
             self._input_data()
 
         else:
 
             self._name = first_name
 
-            self._first_last = first_last # Inmutable, for hashing purposes.
+            self._first_last = first_last
 
-            self._second_last= second_last # Inmutable, for hashing purposes.
+            self._second_last= second_last
 
-            self._sex = sex # Inmutable, for hashing purposes.
+            self._sex = sex
 
             if not isinstance(dob, datetime): raise ValueError('Must provide a datetime object for dob.')
 
@@ -53,18 +55,6 @@ class Person:
 
         return response
 
-    # People are considered equal if their natal data matches.
-    def __eq__(self, other):
-
-        if not isinstance(other, Person):
-
-            return NotImplemented
-
-        else:
-
-            return self.name() == other.name() and self.first_surname() == other.first_surname() and \
-                self.second_surname() == other.second_surname() and self.sex() == other.sex() and \
-                self.dob() == other.dob() and self.pob() == other.pob()
 
     # Hash depends on immutable parameters.
     def __hash__(self):
@@ -107,7 +97,7 @@ class Person:
 
         self._sex = input('Please enter sex (M/F):\n')
 
-        if input('Would you like to specify time of birth? (Y/N):\n') == 'Y':
+        if input('Would you like to specify time of day of birth? (Y/N):\n') == 'Y':
 
             self._dob = datetime( year = int(input('Please input birth year:\n')),
                                   month = int(input('Please input birth month:\n')),
@@ -124,7 +114,6 @@ class Person:
 
 ############################################################ Event Class ###############################################
 class Event:
-
     """
     Instances of this class keep track of what, when, where, and a note on the event. Designed to be immutable.
     """
@@ -220,9 +209,8 @@ class DisconnectionException(Exception):
 ############################################################### Family Tree Class ######################################
 class FamilyTree:
 
-
     ########################################################### Nested _Member Class ####################################
-    class _Member(Person):
+    class _Member:
         """
         Instances of this class keep track of a person's basic information as well as their history. These are the nodes
         of the tree.
@@ -231,21 +219,34 @@ class FamilyTree:
         ############################################################ Public Methods ####################################
         def __init__(self, person = None, sex = None, dob = None, first_name = None, first_last = None,
                      second_last = None, pob=None, father=None, mother=None, children=None, spouse=None):
+            """
+            Underlying Person instance handles the case in which insufficient data is provided.
+            :param person: Person instance.
+            :param sex: char.
+            :param dob:
+            :param first_name:
+            :param first_last:
+            :param second_last:
+            :param pob:
+            :param father: _Member instance.
+            :param mother: _Member instance.
+            :param children: List of _Member instances.
+            :param spouse: _Member instance.
+            """
 
-            # We provide possibility of providing a Person instance as a basis for the _Member.
+            # A Person instance may be provided as a basis for the _Member.
             if person is None:
-                super().__init__(sex=sex, dob=dob, first_name=first_name, first_last=first_last,
-                                 second_last=second_last, pob=pob)
+
+                self.person = Person(sex=sex, dob=dob, first_name=first_name, first_last=first_last,
+                                     second_last=second_last, pob=pob)
 
                 # List of events sorted according to time.We add birthday upon init.
                 self._history = [Event(title='Birth', date=dob, place=pob)]
 
             else:
 
-                super().__init__( sex=person.sex(), dob=person.dob(), first_name=person.name(),
-                                  first_last=person.first_surname(),
-                                 second_last=person.second_surname(), pob=person.dob() )
-                # List of events sorted according to time.We add birthday upon init.
+                self.person = person
+
                 self._history = [Event(title='Birth', date=person.dob(), place=person.pob())]
 
             self._father = father
@@ -261,7 +262,6 @@ class FamilyTree:
             else:
 
                 self._children = children
-
 
         def add_event( self, event ):  # Sorts an event into _history.
 
@@ -280,6 +280,7 @@ class FamilyTree:
                 yield item
 
         def add_child(self, new_child, is_relative = False ):
+
             # We use bisect for efficiency.
             bisect.insort_right( self._children, new_child)
 
@@ -334,10 +335,12 @@ class FamilyTree:
 
             # If relationship operation was initiated by this function...
             if new_mother is not None and not is_relative:
+
                 # We call its counterpart, specifying we initiated the function.
                 new_mother.add_child(self, is_relative=True)
 
             if old_mother is not None:
+
                 old_mother.remove_child( self, is_relative=True )
 
             return old_mother
@@ -347,6 +350,7 @@ class FamilyTree:
             Turns Person into _Member, makes appropriate connections to self, and checks whether old spouse is not
             disconnected from _root.
             """
+
             # We record old spouse.
             old_spouse = self._spouse
 
@@ -355,24 +359,30 @@ class FamilyTree:
 
             # If relationship operation was initiated by this function...
             if new_spouse is not None and not is_relative:
+
                 # We call its counterpart, specifying we initiated the function.
                 new_spouse.add_child(self, is_relative=True)
 
             if old_spouse is not None:
+
                 old_spouse.replace_spouse( new_spouse= None, is_relative=True )
 
             return old_spouse
 
         def spouse(self):
+
             return self._spouse
 
         def father(self):
+
             return self._father
 
         def mother(self):
+
             return self._mother
 
         def children(self):
+
             return self._children
 
     ########################################################## Public Methods ##########################################
@@ -381,47 +391,59 @@ class FamilyTree:
           Keeps track and maintains integrity of a collection of _Member objects.
           :param root: Person instance.
           :param file: .db
-          :param sprout: _Member of another FamilyTree instance. For cutting purposes.
+          :param sprout: _Member instance belonging to another FamilyTree instance. For cutting purposes.
         """
-        self._root = root
 
+        self._root = self._Member( person=root )
+
+        # This is a set of Person instances---not a set of _Member instances!
         self._members = set()
 
         # Both tree, root are provided.
         if file is not None and root is not None:
+
             raise ValueError('Exactly one of root, file must be provided.')
 
         # Tree is empty and database is provided.
         elif file is not None and root is None:
+
             self.load(file)
 
         # Only root is provided.
         elif file is None and root is not None:
 
             self._root = self._Member( person=root )
-            self._members.add( self._root )
+
+            self._members.add( self._root.person )
 
         # Sprout is _Member of another FamilyTree, provided as root. For cutting purposes.
         elif sprout is not None:
 
             self._root = sprout
-            self._members.add( sprout )
+
+            self._members.add( sprout.person )
 
         # Nothing is provided
         else:
+
             print('Please provide Tree Root\'s personal information.\n')
+
             self._root = self._Member()
-            self._members.add(self._root)
+
+            self._members.add( self._root.person )
 
     def __len__(self):
+
         return len(self._members)
 
     def save( self, filename = 'database.db', overwrite = False ):
 
         if file_exists(filename) and not overwrite:
+
             raise ValueError('File already exists.')
 
         if file_exists(filename):
+
             os.remove(filename)
 
         conn = sqlite3.connect(filename)
@@ -429,16 +451,22 @@ class FamilyTree:
         cursor = conn.cursor()
 
         # We iterate over each person in the tree and prepare the date for entry into the database.
+
         save_data = []
+
         i = 0  # person_id counter.
+
         for person in self._members:
+
             # We collect natal info. Last entry records Root.
             entry = [i, person.name(), person.first_surname(), person.second_surname(), person.sex(),
                      person.dob(), person.pob(), None, None, None, person == self._root]
 
             # We look for spouse and parents.
             j = 0  # relative_id counter
+
             for potential_relative in self._members:
+
                 # If potential relative is candidate's father...
                 if person.father() is potential_relative: entry[7] = j
 
@@ -453,6 +481,7 @@ class FamilyTree:
 
             # We append the entry and increase the person_id counter.
             save_data.append( entry )
+
             i += 1
 
         cursor.execute("""
@@ -493,14 +522,17 @@ class FamilyTree:
         people = set()
 
         for entry in cursor.execute('SELECT * FROM people').fetchall():
+
             member = FamilyTree._Member(first_name=entry[1], first_last=entry[2],
                                         second_last=entry[3], sex=entry[4], dob=entry[5], pob=entry[6])
             # We detect and set Root.
             if entry[10]:
+
                 self._root = member
 
             # We add member to members' list and to people set.
             self._members.add( member )
+
             people.add((entry[0], member))
 
         # We establish parentage and marriage.
@@ -551,9 +583,11 @@ class FamilyTree:
         """
 
         if subject_member not in self._members:
+
             raise ValueError( str(subject_member) + ' is not a member of this tree.')
 
         if object_member not in self._members:
+
             raise ValueError(str(object_member) + ' is not a member of this tree.')
 
         if relationship == 'father':
@@ -669,6 +703,7 @@ class FamilyTree:
         person is relationship of member.
         Incorporates Person instance into Tree as a _Member instance. Checks whether tree is disconnected as a result.
         """
+
         if member not in self._members:
 
             raise ValueError( str(member) + ' is not a member of this tree.')
@@ -680,6 +715,7 @@ class FamilyTree:
         potential_member = self._Member( person = person )
 
         if relationship == 'father':
+
             # We replace member's father.
             oldfather = member.replace_father( potential_member )
 
@@ -899,9 +935,6 @@ class FamilyTree:
             raise ValueError(str(starting_position) + ' is not a member of this tree.')
 
         yield from self._collectall( current_position = starting_position, count = None )
-
-    def register(self, member):
-        if member in
 
     ########################################################## Private Utilities #######################################
 
