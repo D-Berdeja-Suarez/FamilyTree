@@ -111,7 +111,6 @@ class Person:
                                  month=int(input('Please input birth month:\n')),
                                  day=int(input('Please input birth day:\n')),)
 
-
 ############################################################ Event Class ###############################################
 class Event:
     """
@@ -263,6 +262,10 @@ class FamilyTree:
 
                 self._children = children
 
+        def __hash__(self):
+
+            return hash( self.person )
+
         def add_event( self, event ):  # Sorts an event into _history.
 
             if isinstance(event, Event):
@@ -396,7 +399,7 @@ class FamilyTree:
 
         self._root = self._Member( person=root )
 
-        # This is a set of Person instances---not a set of _Member instances!
+        # This is a set of _Member instances.
         self._members = set()
 
         # Both tree, root are provided.
@@ -414,14 +417,14 @@ class FamilyTree:
 
             self._root = self._Member( person=root )
 
-            self._members.add( self._root.person )
+            self._members.add( self._root )
 
         # Sprout is _Member of another FamilyTree, provided as root. For cutting purposes.
         elif sprout is not None:
 
             self._root = sprout
 
-            self._members.add( sprout.person )
+            self._members.add( sprout )
 
         # Nothing is provided
         else:
@@ -430,11 +433,25 @@ class FamilyTree:
 
             self._root = self._Member()
 
-            self._members.add( self._root.person )
+            self._members.add( self._root )
 
     def __len__(self):
 
         return len(self._members)
+
+    def members(self):
+
+        for member in self._members: yield member.person
+
+    def validate(self, person):
+
+        if person in self.members():
+
+            return True
+
+        else:
+
+            return False
 
     def save( self, filename = 'database.db', overwrite = False ):
 
@@ -456,11 +473,12 @@ class FamilyTree:
 
         i = 0  # person_id counter.
 
-        for person in self._members:
+        for member in self._members:
 
             # We collect natal info. Last entry records Root.
-            entry = [i, person.name(), person.first_surname(), person.second_surname(), person.sex(),
-                     person.dob(), person.pob(), None, None, None, person == self._root]
+            entry = [i, member.person.name(), member.person.first_surname(), member.person.second_surname(),
+                     member.person.sex(), member.person.dob(), member.person.pob(), None, None, None,
+                     member.person == self._root]
 
             # We look for spouse and parents.
             j = 0  # relative_id counter
@@ -468,13 +486,13 @@ class FamilyTree:
             for potential_relative in self._members:
 
                 # If potential relative is candidate's father...
-                if person.father() is potential_relative: entry[7] = j
+                if member.father() is potential_relative: entry[7] = j
 
                 # If potential relative is candidate's mother...
-                if person.mother() is potential_relative: entry[8] = j
+                if member.mother() is potential_relative: entry[8] = j
 
                 # If potential relative is candidate's spouse...
-                if person.spouse() is potential_relative: entry[9] = j
+                if member.spouse() is potential_relative: entry[9] = j
 
                 # We increase the relative_id counter.
                 j += 1
@@ -538,7 +556,7 @@ class FamilyTree:
         # We establish parentage and marriage.
         for parent_key, potential_parent in people:
 
-            if potential_parent.is_male():
+            if potential_parent.person.is_male():
 
                 response_parent = cursor.execute("""  SELECT person_id FROM people WHERE father = ? """,
                                                  (parent_key,)).fetchall()
@@ -560,12 +578,12 @@ class FamilyTree:
                 self._members.add( candidate )
 
                 # We establish male parentage. Note that replacing candidate's parent automatically adds candidate as parent's child.
-                if candidate_key in response_parent and potential_parent.is_male():
+                if candidate_key in response_parent and potential_parent.person.is_male():
 
                     candidate.replace_father(potential_parent)
 
                 # We establish female parentage.
-                elif candidate_key in response_parent and not potential_parent.sex().is_male():
+                elif candidate_key in response_parent and not potential_parent.person.sex().is_male():
 
                     candidate.replace_mother(potential_parent)
 
@@ -575,18 +593,22 @@ class FamilyTree:
                     candidate.replace_spouse(potential_parent)
 
     def modify_relationship( self, subject_member, relationship, object_member, cut = False ):
-        """ subject member is relationship of object member.
-            See add_member.
-            Normally returns replaced relationship.
-            If cut is set to True and this function disconnects tree, compliment of root will be stored in new .db and returned.
+        """
+        subject member is relationship of object member.
+        If cut is set to True and this function disconnects tree, compliment of root will be stored in new .db and returned.
             Otherwise, a DisconnectionError is raised.
+        :param subject_member:
+        :param relationship:
+        :param object_member:
+        :param cut:
+        :return:
         """
 
-        if subject_member not in self._members:
+        if not self.validate(subject_member):
 
             raise ValueError( str(subject_member) + ' is not a member of this tree.')
 
-        if object_member not in self._members:
+        if not self.validate(object_member):
 
             raise ValueError(str(object_member) + ' is not a member of this tree.')
 
@@ -704,13 +726,9 @@ class FamilyTree:
         Incorporates Person instance into Tree as a _Member instance. Checks whether tree is disconnected as a result.
         """
 
-        if member not in self._members:
+        if not self.validate(member):
 
             raise ValueError( str(member) + ' is not a member of this tree.')
-
-        if not isinstance(person, Person):
-
-            raise ValueError( str(person) + ' must be a Person instance.')
 
         potential_member = self._Member( person = person )
 
@@ -804,7 +822,7 @@ class FamilyTree:
 
         if relationship == 'child':
 
-            if not potential_member.is_male():
+            if not potential_member.person.is_male():
 
                 oldmother = potential_member.replace_mother(new_mother=member)
 
@@ -1013,7 +1031,7 @@ class FamilyTree:
 
         return newtree
 
-    def _collectall( self , current_position , count = None):\
+    def _collectall( self , current_position , count = None):
 
         """
         Internal utility. Collects _Members of FamilyTree by visiting all of current_position's family iteratively.
