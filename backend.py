@@ -236,11 +236,16 @@ class FamilyTree:
             # A Person instance may be provided as a basis for the _Member.
             if person is None:
 
+                # This iniialization handles the case in which insufficient data is provided.
                 self.person = Person(sex=sex, dob=dob, first_name=first_name, first_last=first_last,
                                      second_last=second_last, pob=pob)
 
-                # List of events sorted according to time.We add birthday upon init.
+                # List of events sorted according to time. We add birthday upon init.
                 self._history = [Event(title='Birth', date=dob, place=pob)]
+
+            elif not isinstance(person, Person):
+
+                raise TypeError('person must be an instance of Person.')
 
             else:
 
@@ -248,6 +253,7 @@ class FamilyTree:
 
                 self._history = [Event(title='Birth', date=person.dob(), place=person.pob())]
 
+            # Father, mother, and spouse are _Member instances.
             self._father = father
 
             self._mother = mother
@@ -262,6 +268,7 @@ class FamilyTree:
 
                 self._children = children
 
+        # Hash function depends on immutable characteristics.
         def __hash__(self):
 
             return hash( self.person )
@@ -282,10 +289,13 @@ class FamilyTree:
 
                 yield item
 
+        # The following methods are public because they are accessed by FamilyTree instances. Since _Member is a
+        # private class, these methods are not accessible by a user. Therefore, they do not check for valid membership.
+
         def add_child(self, new_child, is_relative = False ):
 
             # We use bisect for efficiency.
-            bisect.insort_right( self._children, new_child)
+            bisect.insort_right( self._children, new_child )
 
             # We make sure relatives are consistently connected.
             if not is_relative: new_child.replace_father(self, is_relative = True)
@@ -312,6 +322,11 @@ class FamilyTree:
 
         def replace_father(self, new_father, is_relative = False ):
 
+            # Failsafe in case of redundancy.
+            if new_father is self._father:
+
+                return new_father
+
             # We record old father.
             old_father = self._father
 
@@ -329,6 +344,10 @@ class FamilyTree:
             return old_father
 
         def replace_mother(self, new_mother, is_relative = False ):
+
+            # Failsafe in case of redundancy.
+            if new_mother is self._mother:
+                return new_mother
 
             # We record old mother.
             old_mother = self._mother
@@ -354,21 +373,21 @@ class FamilyTree:
             disconnected from _root.
             """
 
+            # Failsafe in case of redundancy.
+            if new_spouse is self._spouse:
+                return new_spouse
+
             # We record old spouse.
             old_spouse = self._spouse
 
-            # We connect new mother.
+            # We connect new spouse.
             self._spouse = new_spouse
 
             # If relationship operation was initiated by this function...
             if new_spouse is not None and not is_relative:
 
                 # We call its counterpart, specifying we initiated the function.
-                new_spouse.add_child(self, is_relative=True)
-
-            if old_spouse is not None:
-
-                old_spouse.replace_spouse( new_spouse= None, is_relative=True )
+                new_spouse.replace_spouse(self, is_relative=True)
 
             return old_spouse
 
@@ -396,8 +415,6 @@ class FamilyTree:
           :param file: .db
           :param sprout: _Member instance belonging to another FamilyTree instance. For cutting purposes.
         """
-
-        self._root = self._Member( person=root )
 
         # This is a set of _Member instances.
         self._members = set()
@@ -536,14 +553,16 @@ class FamilyTree:
 
         cursor = conn.cursor()
 
-        # We fetch everyone and add them to the list of _Member objects, along with their personal id.
+        # We fetch everyone and add them to a list of _Member objects, along with their personal id.
+        # The people set will help us establish relationships.
         people = set()
 
         for entry in cursor.execute('SELECT * FROM people').fetchall():
 
             member = FamilyTree._Member(first_name=entry[1], first_last=entry[2],
                                         second_last=entry[3], sex=entry[4], dob=entry[5], pob=entry[6])
-            # We detect and set Root.
+
+            # We detect and set _root. The 10th column is True only for _root.
             if entry[10]:
 
                 self._root = member
@@ -558,6 +577,7 @@ class FamilyTree:
 
             if potential_parent.person.is_male():
 
+                # father column stores key of father.
                 response_parent = cursor.execute("""  SELECT person_id FROM people WHERE father = ? """,
                                                  (parent_key,)).fetchall()
 
@@ -587,7 +607,8 @@ class FamilyTree:
 
                     candidate.replace_mother(potential_parent)
 
-                # We establish marriages.
+                # We establish marriages. Naturally, there will be a two-fold redundant call per marriage in tree.
+                # Failsafes that mitigate this effect have been put in place.
                 if candidate_key in response_spouse:
 
                     candidate.replace_spouse(potential_parent)
@@ -978,6 +999,7 @@ class FamilyTree:
                     father INTEGER,
                     mother INTEGER,
                     spouse INTEGER,
+                    root BOOLEAN NOT NULL,
                     foreign key (father) references people (person_id), 
                     foreign key (mother) references people (person_id),
                     foreign key (spouse) references people (person_id)
@@ -1092,7 +1114,7 @@ class FamilyTree:
             if current_position.mother() is not None:
                 yield from self._ascendance(current_position.mother(), start = False, count = count)
 
-    def _descendance( self, current_position, is_spouse = False, start = True, count = None ):
+    def _descendance( self, current_position, is_spouse = False, star2t = True, count = None ):
         """Produces an iteration of starting position's children, their spouses, and their children."""
 
         # Keeps track of items that have already been yielded.
