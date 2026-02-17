@@ -2,13 +2,14 @@ import os
 import bisect                      # Oredered lists.
 
 # noinspection PyUnresolvedReferences
-import matplotlib, numpy           # Maths and plots.
+#import matplotlib, numpy           # Maths and plots.
 # noinspection PyUnresolvedReferences
-import mpl_toolkits.basemap, basemap  # Map plotting.
+#import mpl_toolkits.basemap, basemap  # Map plotting.
 import sqlite3 # Databases.
 from pandas.io.common import file_exists
 # noinspection PyUnresolvedReferences
 from datetime import datetime, timedelta
+from dateutil import parser
 
 ########################################################### Person Class ###############################################
 class Person:
@@ -462,13 +463,13 @@ class FamilyTree:
 
     def validate(self, person):
 
-        if person in self.members():
+        for member in self._members:
 
-            return True
+            if member.person is person:
 
-        else:
+                return member
 
-            return False
+        return None
 
     def save( self, filename = 'database.db', overwrite = False ):
 
@@ -480,9 +481,8 @@ class FamilyTree:
 
             os.remove(filename)
 
-        conn = sqlite3.connect(filename)
-
-        cursor = conn.cursor()
+        # We create a blank database.
+        self._dbtemplate(filename)
 
         # We iterate over each person in the tree and prepare the date for entry into the database.
 
@@ -495,7 +495,7 @@ class FamilyTree:
             # We collect natal info. Last entry records Root.
             entry = [i, member.person.name(), member.person.first_surname(), member.person.second_surname(),
                      member.person.sex(), member.person.dob(), member.person.pob(), None, None, None,
-                     member.person == self._root]
+                     member == self._root]
 
             # We look for spouse and parents.
             j = 0  # relative_id counter
@@ -519,23 +519,10 @@ class FamilyTree:
 
             i += 1
 
-        cursor.execute("""
-                        CREATE TABLE IF NOT EXISTS people (
-                            person_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                            name TEXT NOT NULL,
-                            fathers_name TEXT,
-                            mothers_name TEXT,
-                            sex CHAR(1) NOT NULL,
-                            dob DATETIME NOT NULL,
-                            pob TEXT,
-                            father INTEGER,
-                            mother INTEGER,
-                            spouse INTEGER,
-                            is_root BOOLEAN NOT NULL DEFAULT FALSE,
-                            foreign key (father) references people (person_id), 
-                            foreign key (mother) references people (person_id),
-                            foreign key (spouse) references people (person_id)
-                            )""")
+        # We connect to empty database and push our save data.
+        conn = sqlite3.connect(filename)
+
+        cursor = conn.cursor()
 
         cursor.executemany("""INSERT INTO people VALUES(?,?,?,?,?,?,?,?,?,?,?)""", save_data)
 
@@ -560,7 +547,7 @@ class FamilyTree:
         for entry in cursor.execute('SELECT * FROM people').fetchall():
 
             member = FamilyTree._Member(first_name=entry[1], first_last=entry[2],
-                                        second_last=entry[3], sex=entry[4], dob=entry[5], pob=entry[6])
+                                        second_last=entry[3], sex=entry[4], dob=parser.parse(entry[5]), pob=entry[6])
 
             # We detect and set _root. The 10th column is True only for _root.
             if entry[10]:
@@ -590,8 +577,6 @@ class FamilyTree:
                                              (parent_key,)).fetchall()
 
 
-            conn.close()
-
             for candidate_key, candidate in people:
 
                 # We add the candidate to the FamilyTree's members' list.
@@ -612,6 +597,8 @@ class FamilyTree:
                 if candidate_key in response_spouse:
 
                     candidate.replace_spouse(potential_parent)
+
+        conn.close()
 
     def modify_relationship( self, subject_member, relationship, object_member, cut = False ):
         """
@@ -746,17 +733,23 @@ class FamilyTree:
         person is relationship of member.
         Incorporates Person instance into Tree as a _Member instance. Checks whether tree is disconnected as a result.
         """
+        # We check whether member, which is a Person instance, corresponds to a valid _Member. If so, we collect _Member
+        validated_member = self.validate( member )
 
-        if not self.validate(member):
+        if validated_member is None:
 
             raise ValueError( str(member) + ' is not a member of this tree.')
+
+        if person in self.members():
+
+            raise ValueError( str(person) + ' is already a member of this tree.')
 
         potential_member = self._Member( person = person )
 
         if relationship == 'father':
 
             # We replace member's father.
-            oldfather = member.replace_father( potential_member )
+            oldfather = validated_member.replace_father( potential_member )
 
             # We check whether old father is disconnected as a result. If so, we raise an error.
             if oldfather is not None and oldfather not in self.collectfamily():
@@ -769,7 +762,7 @@ class FamilyTree:
                 # If we are not allowed to cut...
                 else:
 
-                    member.replace_father(oldfather)
+                    validated_member.replace_father(oldfather)
 
                     raise DisconnectionException(disconnected_member=oldfather)
 
@@ -783,7 +776,7 @@ class FamilyTree:
 
             # We replace member's mother.
 
-            oldmother = member.replace_mother(potential_member)
+            oldmother = validated_member.replace_mother(potential_member)
 
             # We check whether old father is disconnected as a result. If so, we raise an error.
 
@@ -800,7 +793,7 @@ class FamilyTree:
 
                 else:
 
-                    member.replace_mother(oldmother)
+                    validated_member.replace_mother(oldmother)
 
                     raise DisconnectionException(disconnected_member=oldmother)
 
@@ -814,7 +807,7 @@ class FamilyTree:
 
             # We replace member's father.
 
-            oldspouse = member.replace_spouse(potential_member)
+            oldspouse = validated_member.replace_spouse(potential_member)
 
             # We check whether old father is disconnected as a result. If so, we raise an error.
 
@@ -831,7 +824,7 @@ class FamilyTree:
 
                 else:
 
-                    member.replace_spouse(oldspouse)
+                    validated_member.replace_spouse(oldspouse)
 
                     raise DisconnectionException(disconnected_member=oldspouse)
 
@@ -913,7 +906,7 @@ class FamilyTree:
         return self.add_member(person=newchild, relationship='child', member=member)
 
     def root(self):
-        return self._root
+        return self._root.person
 
     def ancestors(self, starting_position = None):
         """
