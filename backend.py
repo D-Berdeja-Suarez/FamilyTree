@@ -274,6 +274,17 @@ class FamilyTree:
 
             return hash( self.person )
 
+        # We compare _Members based on the age of the underlying Person.
+        def __lt__(self, other):
+
+            if isinstance(other, FamilyTree._Member):
+
+                return self.person < other.person
+
+            else:
+
+                raise NotImplementedError
+
         def add_event( self, event ):  # Sorts an event into _history.
 
             if isinstance(event, Event):
@@ -612,18 +623,21 @@ class FamilyTree:
         :return:
         """
 
-        if not self.validate(subject_member):
+        validated_subject_member = self.validate(subject_member)
+        validated_object_member = self.validate(object_member)
+
+        if validated_subject_member is None:
 
             raise ValueError( str(subject_member) + ' is not a member of this tree.')
 
-        if not self.validate(object_member):
+        if validated_object_member is None:
 
             raise ValueError(str(object_member) + ' is not a member of this tree.')
 
         if relationship == 'father':
 
             # We disconnect _M <-> old father.
-            oldfather = object_member.replace_father( subject_member )
+            oldfather = validated_object_member.replace_father( validated_subject_member )
 
             # If old father is disconnected...
             if oldfather is not None and oldfather not in self.collectfamily():
@@ -637,7 +651,7 @@ class FamilyTree:
                 else:
 
                     # We reconnect _M <-> old father.
-                    object_member.replace_father( oldfather )
+                    validated_object_member.replace_father( oldfather )
 
                     raise DisconnectionException( disconnected_member=oldfather )
 
@@ -646,7 +660,7 @@ class FamilyTree:
 
         if relationship == 'mother':
 
-            oldmother = object_member.replace_mother(subject_member)
+            oldmother = validated_object_member.replace_mother(validated_subject_member)
 
             if oldmother is not None and oldmother not in self.collectfamily():
 
@@ -658,7 +672,7 @@ class FamilyTree:
                 # If we are not allowed to cut...
                 else:
 
-                    object_member.replace_father(oldmother)
+                    validated_object_member.replace_father(oldmother)
 
                     raise DisconnectionException(disconnected_member=oldmother)
 
@@ -666,7 +680,7 @@ class FamilyTree:
 
         if relationship == 'spouse':
 
-            oldspouse = object_member.replace_spouse(subject_member)
+            oldspouse = validated_object_member.replace_spouse(validated_subject_member)
 
             if oldspouse is not None and oldspouse not in self.collectfamily():
 
@@ -678,7 +692,7 @@ class FamilyTree:
                 # If we are not allowed to cut...
                 else:
 
-                    object_member.replace_father(oldspouse)
+                    validated_object_member.replace_father(oldspouse)
 
                     raise DisconnectionException(disconnected_member=oldspouse)
 
@@ -686,9 +700,9 @@ class FamilyTree:
 
         if relationship == 'child':
 
-            if not object_member.is_male():
+            if not validated_object_member.person.is_male():
 
-                oldmother = subject_member.replace_mother( new_mother = object_member )
+                oldmother = validated_subject_member.replace_mother( new_mother = validated_object_member )
 
                 if oldmother is not None and oldmother not in self.collectfamily():
                     # If we are allowed to cut the tree...
@@ -699,7 +713,9 @@ class FamilyTree:
                     # If we are not allowed to cut...
                     else:
 
-                        subject_member.replace_father(oldmother)
+                        validated_subject_member.replace_father(oldmother)
+
+                        print(str(oldmother))
 
                         raise DisconnectionException(disconnected_member=oldmother)
 
@@ -707,7 +723,7 @@ class FamilyTree:
 
             else:
 
-                oldfather = subject_member.replace_father( new_father = object_member)
+                oldfather = validated_subject_member.replace_father( new_father = validated_object_member)
 
                 if oldfather is not None and oldfather not in self.collectfamily():
                     # If we are allowed to cut the tree...
@@ -718,7 +734,7 @@ class FamilyTree:
                     # If we are not allowed to cut...
                     else:
 
-                        subject_member.replace_father(oldfather)
+                        validated_subject_member.replace_father(oldfather)
 
                         raise DisconnectionException(disconnected_member=oldfather)
 
@@ -838,7 +854,7 @@ class FamilyTree:
 
             if not potential_member.person.is_male():
 
-                oldmother = potential_member.replace_mother(new_mother=member)
+                oldmother = potential_member.replace_mother(new_mother=validated_member)
 
                 if oldmother is not None and oldmother not in self.collectfamily():
 
@@ -857,12 +873,14 @@ class FamilyTree:
 
                         raise DisconnectionException(disconnected_member=oldmother)
 
+                self._members.add(potential_member)
+
                 return oldmother
 
 
             else:
 
-                oldfather = potential_member.replace_father(new_father=member)
+                oldfather = potential_member.replace_father(new_father=validated_member)
 
                 if oldfather is not None and oldfather not in self.collectfamily():
 
@@ -880,6 +898,8 @@ class FamilyTree:
                         potential_member.replace_father(oldfather)
 
                         raise DisconnectionException(disconnected_member=oldfather)
+
+                self._members.add(potential_member)
 
                 return oldfather
 

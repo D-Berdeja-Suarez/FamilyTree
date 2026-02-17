@@ -71,7 +71,7 @@ def exampletree():
 
     ana = Person( sex='F',
                        dob = datetime.datetime(1994,9,3, 0,0,0),
-                       first_name='Isabel',
+                       first_name='Ana',
                        first_last='Berdeja',
                        second_last='Suarez',
                        pob = 'Mexico City')
@@ -79,6 +79,13 @@ def exampletree():
     mytree = FamilyTree(root= diego)
 
     mytree.add_member(person= teofilo, relationship= 'father', member = diego)
+    mytree.add_member(person=marisa, relationship='mother', member=diego)
+    mytree.modify_relationship(subject_member=teofilo, relationship='spouse', object_member=marisa)
+
+    mytree.add_member(person=isabel, relationship='child', member=teofilo)
+    mytree.modify_relationship(subject_member=isabel, relationship='child', object_member=marisa)
+
+
 
     return mytree
 
@@ -89,15 +96,13 @@ mytree = exampletree()
 for item in mytree.members():
     print(item)
 
-mytree.save(overwrite = True)
-
-loadedtree = FamilyTree(file='database.db')
-
-for item in loadedtree.members():
-    print(item)
-
 if False:
+    mytree.save(overwrite=True)
 
+    loadedtree = FamilyTree(file='database.db')
+
+    for item in loadedtree.members():
+        print(item)
 
 
     diego = tree.root()
