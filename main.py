@@ -97,6 +97,9 @@ for item in mytree.members():
     print(item)
 
 if False:
+    for item in mytree.members():
+        print(item)
+
     mytree.save(overwrite=True)
 
     loadedtree = FamilyTree(file='database.db')

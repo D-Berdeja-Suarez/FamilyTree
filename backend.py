@@ -285,6 +285,10 @@ class FamilyTree:
 
                 raise NotImplementedError
 
+        def __str__(self):
+
+            return str(self.person)
+
         def add_event( self, event ):  # Sorts an event into _history.
 
             if isinstance(event, Event):
@@ -310,7 +314,15 @@ class FamilyTree:
             bisect.insort_right( self._children, new_child )
 
             # We make sure relatives are consistently connected.
-            if not is_relative: new_child.replace_father(self, is_relative = True)
+            if not is_relative:
+
+                if self.person.sex() == 'M':
+
+                    new_child.replace_father(self, is_relative = True)
+
+                else:
+
+                    new_child.replace_mother(self, is_relative=True)
 
             return new_child
 
@@ -657,7 +669,6 @@ class FamilyTree:
 
             return oldfather
 
-
         if relationship == 'mother':
 
             oldmother = validated_object_member.replace_mother(validated_subject_member)
@@ -713,9 +724,7 @@ class FamilyTree:
                     # If we are not allowed to cut...
                     else:
 
-                        validated_subject_member.replace_father(oldmother)
-
-                        print(str(oldmother))
+                        validated_subject_member.replace_mother(oldmother)
 
                         raise DisconnectionException(disconnected_member=oldmother)
 
@@ -852,7 +861,7 @@ class FamilyTree:
 
         if relationship == 'child':
 
-            if not potential_member.person.is_male():
+            if not validated_member.person.is_male():
 
                 oldmother = potential_member.replace_mother(new_mother=validated_member)
 
