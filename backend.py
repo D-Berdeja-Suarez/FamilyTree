@@ -434,7 +434,7 @@ class FamilyTree:
     ########################################################## Public Methods ##########################################
     def __init__( self, root = None, file = None, sprout = None):
         """
-          Keeps track and maintains integrity of a collection of _Member objects.
+          FamilyTree records and maintains integrity of a collection of _Member objects and their relationships.
           :param root: Person instance.
           :param file: .db
           :param sprout: _Member instance belonging to another FamilyTree instance. For cutting purposes.
@@ -481,11 +481,19 @@ class FamilyTree:
         return len(self._members)
 
     def members(self):
+        """
+        Yields iteration of Person instances contained in internal list of _Member instances.
+        :return: iteration of Person instances.
+        """
 
         for member in self._members: yield member.person
-
+    
     def validate(self, person):
-
+        """
+        Takes in Person instance and returns corresponding _Member instance, if any.
+        :param person: Person instance.
+        :return: _Member instance or None.
+        """
         for member in self._members:
 
             if member.person is person:
@@ -652,7 +660,7 @@ class FamilyTree:
             oldfather = validated_object_member.replace_father( validated_subject_member )
 
             # If old father is disconnected...
-            if oldfather is not None and oldfather not in self.collectfamily():
+            if oldfather is not None and oldfather not in self._collect_all():
 
                 # If we are allowed to cut the tree...
                 if cut:
@@ -673,7 +681,7 @@ class FamilyTree:
 
             oldmother = validated_object_member.replace_mother(validated_subject_member)
 
-            if oldmother is not None and oldmother not in self.collectfamily():
+            if oldmother is not None and oldmother not in self._collect_all():
 
                 # If we are allowed to cut the tree...
                 if cut:
@@ -693,7 +701,7 @@ class FamilyTree:
 
             oldspouse = validated_object_member.replace_spouse(validated_subject_member)
 
-            if oldspouse is not None and oldspouse not in self.collectfamily():
+            if oldspouse is not None and oldspouse not in self._collect_all():
 
                 # If we are allowed to cut the tree...
                 if cut:
@@ -715,7 +723,7 @@ class FamilyTree:
 
                 oldmother = validated_subject_member.replace_mother( new_mother = validated_object_member )
 
-                if oldmother is not None and oldmother not in self.collectfamily():
+                if oldmother is not None and oldmother not in self._collect_all():
                     # If we are allowed to cut the tree...
                     if cut:
 
@@ -734,7 +742,7 @@ class FamilyTree:
 
                 oldfather = validated_subject_member.replace_father( new_father = validated_object_member)
 
-                if oldfather is not None and oldfather not in self.collectfamily():
+                if oldfather is not None and oldfather not in self._collect_all():
                     # If we are allowed to cut the tree...
                     if cut:
 
@@ -777,7 +785,7 @@ class FamilyTree:
             oldfather = validated_member.replace_father( potential_member )
 
             # We check whether old father is disconnected as a result. If so, we raise an error.
-            if oldfather is not None and oldfather not in self.collectfamily():
+            if oldfather is not None and oldfather not in self._collect_all():
 
                 # If we are allowed to cut the tree...
                 if cut:
@@ -805,7 +813,7 @@ class FamilyTree:
 
             # We check whether old father is disconnected as a result. If so, we raise an error.
 
-            if oldmother is not None and oldmother not in self.collectfamily():
+            if oldmother is not None and oldmother not in self._collect_all():
 
                 # If we are allowed to cut the tree...
 
@@ -836,7 +844,7 @@ class FamilyTree:
 
             # We check whether old father is disconnected as a result. If so, we raise an error.
 
-            if oldspouse is not None and oldspouse not in self.collectfamily():
+            if oldspouse is not None and oldspouse not in self._collect_all():
 
                 # If we are allowed to cut the tree...
 
@@ -865,7 +873,7 @@ class FamilyTree:
 
                 oldmother = potential_member.replace_mother(new_mother=validated_member)
 
-                if oldmother is not None and oldmother not in self.collectfamily():
+                if oldmother is not None and oldmother not in self._collect_all():
 
                     # If we are allowed to cut the tree...
 
@@ -891,7 +899,7 @@ class FamilyTree:
 
                 oldfather = potential_member.replace_father(new_father=validated_member)
 
-                if oldfather is not None and oldfather not in self.collectfamily():
+                if oldfather is not None and oldfather not in self._collect_all():
 
                     # If we are allowed to cut the tree...
 
@@ -984,18 +992,33 @@ class FamilyTree:
         except KeyError:
             print('fart')
 
-    def collectfamily(self, starting_position = None):
+    def family(self, starting_position = None, verbose = False):
         """
-            Collection tool. Yields an iteration of _Members that are reachable from starting position.
-            Starting position defaults to root.
+        Yields iteration of Person instances that are members of FamilyTree.
+        :param starting_position: Person instance.
+        :param verbose: If set to true, returns relationships between people.
+        :return: Iteration of Person instances.
         """
 
         if starting_position is None:
-            starting_position = self.root()
-        elif starting_position not in self._members:
-            raise ValueError(str(starting_position) + ' is not a member of this tree.')
 
-        yield from self._collectall( current_position = starting_position, count = None )
+            for member in self._collect_all( current_position=self._root , count=None, verbose=verbose,
+                                             verify_membership=True ):
+
+                yield member.person
+
+        else:
+
+            validated_starting_position = self.validate(starting_position)
+
+            if validated_starting_position is None:
+
+                ValueError(str(starting_position) + ' is not a member of this tree.')
+
+            for member in self._collect_all( current_position = validated_starting_position, count = None,
+                                             verbose = verbose, verify_membership=True ):
+
+                yield member.person
 
     ########################################################## Private Utilities #######################################
 
@@ -1061,7 +1084,7 @@ class FamilyTree:
         newtree = FamilyTree( sprout = new_root )
 
         # We iterate over each of the _Members in the disconnected component....
-        for member in self._collectall(current_position = new_root):
+        for member in self._collect_all(current_position = new_root):
 
             # add them to the new tree...
             newtree._members.add( member )
@@ -1075,38 +1098,68 @@ class FamilyTree:
 
         return newtree
 
-    def _collectall( self , current_position , count = None):
-
+    def _collect( self , current_position = None , count = None, verbose = False, current_relationship = None,
+                  verify_membership = False):
         """
-        Internal utility. Collects _Members of FamilyTree by visiting all of current_position's family iteratively.
-        :param current_position:
-        :param count:
-        :return:
+        Internal utility. Collects _Members of FamilyTree by visiting all of current_position's family iteratively. Note:
+        _Members needn't be in self._members.
+        :param current_position: None defaults to root. May be set to different _Member.
+        :param count: Set keeping track of _Members
+        :return: Iteration of _Members.
         """
 
-        if count is None: count = set()
+        if current_position is None:
 
-        if current_position not in count and current_position in self._members:
+            current_position = self._root
 
-            yield current_position
+        if count is None:
+
+            count = set()
+
+        # Should the toggle be set to true, we check for membership.
+        if verify_membership:
+
+            flag = current_position in self._members
+
+        else:
+
+            flag = True
+
+        if flag and current_position not in count:
+
+            if verbose:
+
+                yield current_position, current_relationship
+
+            else:
+
+                yield current_position
 
             count.add( current_position )
 
             if current_position.spouse() is not None:
 
-                yield from self._collectall( current_position = current_position.spouse(), count = count )
+                yield from self._collect( current_position = current_position.spouse(), count = count,
+                                          verify_membership = verify_membership, verbose = verbose,
+                                          current_relationship = 'spouse of ' + str(current_position) )
 
             if current_position.mother() is not None:
 
-                yield from self._collectall( current_position = current_position.mother(), count = count )
+                yield from self._collect( current_position = current_position.mother(), count = count,
+                                          verify_membership=verify_membership, verbose=verbose,
+                                          current_relationship='mother of ' + str(current_position))
 
             if current_position.father() is not None:
 
-                yield from self._collectall(current_position=current_position.father(), count=count)
+                yield from self._collect(current_position=current_position.father(), count=count,
+                                         verify_membership=verify_membership, verbose=verbose,
+                                         current_relationship='father of ' + str(current_position))
 
             for child in current_position.children():
 
-                yield from self._collectall( current_position = child, count = count )
+                yield from self._collect(current_position=child, count=count,
+                                         verify_membership=verify_membership, verbose=verbose,
+                                         current_relationship='child of ' + str(current_position))
 
     def _ascendance( self, current_position, is_spouse = False, count = None , start = True):
         """Produces an iteration of starting position's parents, their spouses, and their parents"""
@@ -1136,7 +1189,7 @@ class FamilyTree:
             if current_position.mother() is not None:
                 yield from self._ascendance(current_position.mother(), start = False, count = count)
 
-    def _descendance( self, current_position, is_spouse = False, star2t = True, count = None ):
+    def _descendance( self, current_position, is_spouse = False, start = True, count = None ):
         """Produces an iteration of starting position's children, their spouses, and their children."""
 
         # Keeps track of items that have already been yielded.

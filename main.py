@@ -85,7 +85,14 @@ def exampletree():
     mytree.add_member(person=isabel, relationship='child', member=teofilo)
     mytree.modify_relationship(subject_member=isabel, relationship='child', object_member=marisa)
 
+    mytree.add_member(person=ines, relationship='child', member=teofilo)
+    mytree.modify_relationship(subject_member=ines, relationship='child', object_member=marisa)
 
+    mytree.add_member(person=belen, relationship='child', member=teofilo)
+    mytree.modify_relationship(subject_member=belen, relationship='child', object_member=marisa)
+
+    mytree.add_member(person=ana, relationship='child', member=teofilo)
+    mytree.modify_relationship(subject_member=ana, relationship='child', object_member=marisa)
 
     return mytree
 
@@ -93,8 +100,9 @@ def exampletree():
 
 mytree = exampletree()
 
-for item in mytree.members():
-    print(item)
+print('Root: ' + str(mytree.root()))
+
+mytree.save(overwrite=True)
 
 if False:
     for item in mytree.members():
