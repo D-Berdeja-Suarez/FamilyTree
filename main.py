@@ -100,6 +100,10 @@ def exampletree():
 
 mytree = exampletree()
 
+for item in mytree.family(verbose = True, starting_position=ma):
+
+    print(item)
+
 print('Root: ' + str(mytree.root()))
 
 mytree.save(overwrite=True)

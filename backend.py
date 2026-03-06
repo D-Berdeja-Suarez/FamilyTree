@@ -660,7 +660,7 @@ class FamilyTree:
             oldfather = validated_object_member.replace_father( validated_subject_member )
 
             # If old father is disconnected...
-            if oldfather is not None and oldfather not in self._collect_all():
+            if oldfather is not None and oldfather not in self._collect():
 
                 # If we are allowed to cut the tree...
                 if cut:
@@ -681,7 +681,7 @@ class FamilyTree:
 
             oldmother = validated_object_member.replace_mother(validated_subject_member)
 
-            if oldmother is not None and oldmother not in self._collect_all():
+            if oldmother is not None and oldmother not in self._collect():
 
                 # If we are allowed to cut the tree...
                 if cut:
@@ -701,7 +701,7 @@ class FamilyTree:
 
             oldspouse = validated_object_member.replace_spouse(validated_subject_member)
 
-            if oldspouse is not None and oldspouse not in self._collect_all():
+            if oldspouse is not None and oldspouse not in self._collect():
 
                 # If we are allowed to cut the tree...
                 if cut:
@@ -723,7 +723,7 @@ class FamilyTree:
 
                 oldmother = validated_subject_member.replace_mother( new_mother = validated_object_member )
 
-                if oldmother is not None and oldmother not in self._collect_all():
+                if oldmother is not None and oldmother not in self._collect():
                     # If we are allowed to cut the tree...
                     if cut:
 
@@ -742,7 +742,7 @@ class FamilyTree:
 
                 oldfather = validated_subject_member.replace_father( new_father = validated_object_member)
 
-                if oldfather is not None and oldfather not in self._collect_all():
+                if oldfather is not None and oldfather not in self._collect():
                     # If we are allowed to cut the tree...
                     if cut:
 
@@ -785,7 +785,7 @@ class FamilyTree:
             oldfather = validated_member.replace_father( potential_member )
 
             # We check whether old father is disconnected as a result. If so, we raise an error.
-            if oldfather is not None and oldfather not in self._collect_all():
+            if oldfather is not None and oldfather not in self._collect():
 
                 # If we are allowed to cut the tree...
                 if cut:
@@ -813,7 +813,7 @@ class FamilyTree:
 
             # We check whether old father is disconnected as a result. If so, we raise an error.
 
-            if oldmother is not None and oldmother not in self._collect_all():
+            if oldmother is not None and oldmother not in self._collect():
 
                 # If we are allowed to cut the tree...
 
@@ -844,7 +844,7 @@ class FamilyTree:
 
             # We check whether old father is disconnected as a result. If so, we raise an error.
 
-            if oldspouse is not None and oldspouse not in self._collect_all():
+            if oldspouse is not None and oldspouse not in self._collect():
 
                 # If we are allowed to cut the tree...
 
@@ -873,7 +873,7 @@ class FamilyTree:
 
                 oldmother = potential_member.replace_mother(new_mother=validated_member)
 
-                if oldmother is not None and oldmother not in self._collect_all():
+                if oldmother is not None and oldmother not in self._collect():
 
                     # If we are allowed to cut the tree...
 
@@ -899,7 +899,7 @@ class FamilyTree:
 
                 oldfather = potential_member.replace_father(new_father=validated_member)
 
-                if oldfather is not None and oldfather not in self._collect_all():
+                if oldfather is not None and oldfather not in self._collect():
 
                     # If we are allowed to cut the tree...
 
@@ -1000,25 +1000,27 @@ class FamilyTree:
         :return: Iteration of Person instances.
         """
 
-        if starting_position is None:
+        validated_starting_position = self.validate(starting_position)
 
-            for member in self._collect_all( current_position=self._root , count=None, verbose=verbose,
-                                             verify_membership=True ):
+        if starting_position is not None and validated_starting_position is None:
 
-                yield member.person
+            raise ValueError(str(starting_position) + ' is not a member of this tree.')
 
-        else:
+        for entry in self._collect(verbose=verbose, current_position= validated_starting_position):
 
-            validated_starting_position = self.validate(starting_position)
+            if verbose:
 
-            if validated_starting_position is None:
+                if entry[1] != 'NA':
 
-                ValueError(str(starting_position) + ' is not a member of this tree.')
+                    yield str(str(entry[0]) + ', ' + str(entry[1]) + ' of ' + str(entry[2]) + '.')
 
-            for member in self._collect_all( current_position = validated_starting_position, count = None,
-                                             verbose = verbose, verify_membership=True ):
+                else:
 
-                yield member.person
+                    yield str(str(entry[0]) + ', starting point.')
+
+            else:
+
+                yield str(entry)
 
     ########################################################## Private Utilities #######################################
 
@@ -1084,7 +1086,7 @@ class FamilyTree:
         newtree = FamilyTree( sprout = new_root )
 
         # We iterate over each of the _Members in the disconnected component....
-        for member in self._collect_all(current_position = new_root):
+        for member in self._collect(current_position = new_root):
 
             # add them to the new tree...
             newtree._members.add( member )
@@ -1129,7 +1131,13 @@ class FamilyTree:
 
             if verbose:
 
-                yield current_position, current_relationship
+                if current_relationship is None:
+
+                    yield [current_position, 'NA', '']
+
+                else:
+
+                    yield [current_position, current_relationship[0], current_relationship[1]]
 
             else:
 
@@ -1141,25 +1149,25 @@ class FamilyTree:
 
                 yield from self._collect( current_position = current_position.spouse(), count = count,
                                           verify_membership = verify_membership, verbose = verbose,
-                                          current_relationship = 'spouse of ' + str(current_position) )
+                                          current_relationship = ('spouse', current_position) )
 
             if current_position.mother() is not None:
 
                 yield from self._collect( current_position = current_position.mother(), count = count,
                                           verify_membership=verify_membership, verbose=verbose,
-                                          current_relationship='mother of ' + str(current_position))
+                                          current_relationship = ('mother', current_position))
 
             if current_position.father() is not None:
 
                 yield from self._collect(current_position=current_position.father(), count=count,
                                          verify_membership=verify_membership, verbose=verbose,
-                                         current_relationship='father of ' + str(current_position))
+                                         current_relationship = ('father', current_position))
 
             for child in current_position.children():
 
                 yield from self._collect(current_position=child, count=count,
                                          verify_membership=verify_membership, verbose=verbose,
-                                         current_relationship='child of ' + str(current_position))
+                                         current_relationship = ('child', current_position))
 
     def _ascendance( self, current_position, is_spouse = False, count = None , start = True):
         """Produces an iteration of starting position's parents, their spouses, and their parents"""

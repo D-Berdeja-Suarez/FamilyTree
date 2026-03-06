@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7f4d8e69-144c-44e8-94f4-e19be1ccfef9" name="Changes" comment="Created README.">
+    <list default="true" id="7f4d8e69-144c-44e8-94f4-e19be1ccfef9" name="Changes" comment="Fixed internal _collect tool. Now on to propagating changes and modifying public collect tool.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/database.db" beforeDir="false" afterPath="$PROJECT_DIR$/database.db" afterDir="false" />
@@ -71,11 +71,20 @@
       <option name="project" value="LOCAL" />
       <updated>1770652647793</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Fixed internal _collect tool. Now on to propagating changes and modifying public collect tool.">
+      <option name="closed" value="true" />
+      <created>1772751033614</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1772751033614</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Created README." />
-    <option name="LAST_COMMIT_MESSAGE" value="Created README." />
+    <MESSAGE value="Fixed internal _collect tool. Now on to propagating changes and modifying public collect tool." />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed internal _collect tool. Now on to propagating changes and modifying public collect tool." />
   </component>
 </project>
