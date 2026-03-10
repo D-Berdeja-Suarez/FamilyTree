@@ -100,15 +100,25 @@ def exampletree():
 
 mytree = exampletree()
 
-for item in mytree.family(verbose = True, starting_position=ma):
+persons = list(mytree.members())
 
-    print(item)
+for entry in persons:
 
-print('Root: ' + str(mytree.root()))
+    if entry.name() == 'Teofilo':
 
-mytree.save(overwrite=True)
+        teofilo = entry
+
+for entry in mytree.descendance(starting_position=teofilo, verbose = True):
+
+    print(entry)
+
 
 if False:
+
+    hello = list(mytree.members())
+
+    mytree.save(overwrite=True)
+
     for item in mytree.members():
         print(item)
 

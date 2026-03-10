@@ -945,6 +945,18 @@ class FamilyTree:
     def root(self):
         return self._root.person
 
+    def move_root(self, new_root):
+
+        validated_new_root = self.validate(new_root)
+
+        if validated_new_root is None:
+
+            raise ValueError(str(new_root) + ' is not a member of this tree.')
+
+        else:
+
+            self._root = validated_new_root
+
     def ancestors(self, starting_position = None):
         """
         Collection tool. Yields an iteration of _Members that are ancestors of starting position.
@@ -967,30 +979,93 @@ class FamilyTree:
 
     # noinspection PyMethodMayBeStatic
 
-    def siblings( self, person ):
-        """Produces an iteration of siblings, without person."""
+    def siblings(self, person):
 
-        # We initialize an empty set to avoid duplicates.
-        siblings = set()
+        validated_person = self.validate(person)
 
-        # We yield father's children.
-        if person.father() is not None and len(person.father().children()) != 0:
-            for child in person.father().children():
-                if child not in siblings:
-                    siblings.add(child)
-                    yield child
+        if validated_person is None:
 
-        # We yield mother's children.
-        if person.mother() and len(person.father().children()) != 0:
-            for child in person.mother().children():
-                if child not in siblings:
-                    siblings.add(child)
-                    yield child
+            raise ValueError(str(person) + ' is not a member of this tree.')
 
-        try:
-            siblings.remove(person)
-        except KeyError:
-            print('fart')
+        else:
+
+            people = set()
+
+            if validated_person.father() is not None:
+
+                for child in validated_person.father().children():
+
+                    people.add(child.person)
+
+            people = set()
+
+            if validated_person.mother() is not None:
+
+                for child in validated_person.mother().children():
+
+                    people.add(child.person)
+
+            return people
+
+    def father(self, person):
+
+        validated_person = self.validate(person)
+
+        if validated_person is None:
+
+            raise ValueError(str(person) + ' is not a member of this tree.')
+
+        elif validated_person.father() is None:
+
+            return None
+
+        else:
+
+            return validated_person.father().person
+
+    def mother(self, person):
+
+        validated_person = self.validate(person)
+
+        if validated_person is None:
+
+            raise ValueError(str(person) + ' is not a member of this tree.')
+
+        elif validated_person.mother() is None:
+
+            return None
+
+        else:
+
+            return validated_person.mother().person
+
+    def spouse(self, person):
+
+        validated_person = self.validate(person)
+
+        if validated_person is None:
+
+            raise ValueError(str(person) + ' is not a member of this tree.')
+
+        elif validated_person.spouse() is None:
+
+            return None
+
+        else:
+
+            return validated_person.spouse().person
+
+    def children(self, person):
+
+        validated_person = self.validate(person)
+
+        if validated_person is None:
+
+            raise ValueError(str(person) + ' is not a member of this tree.')
+
+        for child in validated_person.children():
+
+            yield child.person
 
     def family(self, starting_position = None, verbose = False):
         """
@@ -1020,7 +1095,37 @@ class FamilyTree:
 
             else:
 
-                yield str(entry)
+                yield entry
+
+    def descendance(self, starting_position = None, verbose = False):
+        """
+        Yields iteration of Person instances that are descendants of starting position.
+        :param starting_position: Person instance.
+        :param verbose: If set to true, returns relationships between people.
+        :return: Iteration of Person instances.
+        """
+
+        validated_starting_position = self.validate(starting_position)
+
+        if starting_position is not None and validated_starting_position is None:
+
+            raise ValueError(str(starting_position) + ' is not a member of this tree.')
+
+        for entry in self._descendance(verbose=verbose, current_position= validated_starting_position):
+
+            if verbose:
+
+                if entry[1] != 'NA':
+
+                    yield str(str(entry[0]) + ', ' + str(entry[1]) + ' of ' + str(entry[2]) + '.')
+
+                else:
+
+                    yield str(str(entry[0]) + ', starting point.')
+
+            else:
+
+                yield entry
 
     ########################################################## Private Utilities #######################################
 
@@ -1169,54 +1274,123 @@ class FamilyTree:
                                          verify_membership=verify_membership, verbose=verbose,
                                          current_relationship = ('child', current_position))
 
-    def _ascendance( self, current_position, is_spouse = False, count = None , start = True):
-        """Produces an iteration of starting position's parents, their spouses, and their parents"""
+    def _ascendance(self, current_position=None, count=None, verbose=False, current_relationship=None,
+                     verify_membership=False, first = True):
+        """
+        Internal utility. Collects _Members of FamilyTree by visiting all of current_position's parents and their
+        spouses. Note spouses of direct ascendants are treated as leaves.
+        _Members needn't be in self._members.
+        :param current_position: None defaults to root. May be set to different _Member.
+        :param count: Set keeping track of _Members
+        :param first: flag to prevent yielding spouse of starting position.
+        :return: Iteration of _Members.
+        """
 
-        # Keeps track of items that have already been yielded.
-        if count is None: count = set()
+        if current_position is None:
 
-        # If we haven't yielded current position
-        if current_position not in count:
+            current_position = self._root
 
-            if not start:
+        if count is None:
+
+            count = set()
+
+        # Should the toggle be set to true, we check for membership.
+        if verify_membership:
+
+            flag = current_position in self._members
+
+        else:
+
+            flag = True
+
+        if flag and current_position not in count:
+
+            if verbose:
+
+                if current_relationship is None:
+
+                    yield [current_position, 'NA', '']
+
+                else:
+
+                    yield [current_position, current_relationship[0], current_relationship[1]]
+
+            else:
 
                 yield current_position
 
-                # We add it to count.
-                count.add(current_position)
+            count.add(current_position)
 
-                # We repeat with person's spouse, while preventing double-backing...
-                if current_position.spouse() is not None and not is_spouse:
-                    yield from self._ascendance(current_position.spouse(), is_spouse=True, start=False, count=count)
+            if not is_relative:
 
-            # and repeat with their father...
-            if current_position.father() is not None:
-                yield from self._ascendance(current_position.father(), start = False, count = count)
+                if current_position.spouse() is not None and not first:
 
-            # and repeat with their mother...
-            if current_position.mother() is not None:
-                yield from self._ascendance(current_position.mother(), start = False, count = count)
+                    yield from self._ascendance(current_position=current_position.spouse(), count=count,
+                                                 verify_membership=verify_membership, verbose=verbose,
+                                                 current_relationship=('spouse', current_position), is_relative=True,
+                                                 first= False)
 
-    def _descendance( self, current_position, is_spouse = False, start = True, count = None ):
-        """Produces an iteration of starting position's children, their spouses, and their children."""
+                if current_position.mother() is not None:
 
-        # Keeps track of items that have already been yielded.
-        if count is None: count = set()
+                    yield from self._ascendance(current_position=current_position.mother(), count=count,
+                                                verify_membership=verify_membership, verbose=verbose,
+                                                current_relationship=('mother', current_position), is_relative=True,
+                                                first=False)
 
-        # If we haven't yielded current position
-        if current_position not in count:
+    def _descendance(self, current_position=None, count=None, verbose=False, current_relationship=None,
+                 verify_membership=False, is_relative=False):
+        """
+        Internal utility. Collects _Members of FamilyTree by visiting all of current_position's spouse and children
+        iteratively. Not spouses of direct descendants are treated as leaves.
+        _Members needn't be in self._members.
+        :param current_position: None defaults to root. May be set to different _Member.
+        :param count: Set keeping track of _Members
+        :param is_relative: flag to handle case of leaf-spouse.
+        :return: Iteration of _Members.
+        """
 
-            if not start:
+        if current_position is None:
+            current_position = self._root
+
+        if count is None:
+            count = set()
+
+        # Should the toggle be set to true, we check for membership.
+        if verify_membership:
+
+            flag = current_position in self._members
+
+        else:
+
+            flag = True
+
+        if flag and current_position not in count:
+
+            if verbose:
+
+                if current_relationship is None:
+
+                    yield [current_position, 'NA', '']
+
+                else:
+
+                    yield [current_position, current_relationship[0], current_relationship[1]]
+
+            else:
 
                 yield current_position
 
-                # We add it to count.
-                count.add(current_position)
+            count.add(current_position)
 
-                # We recur on person's spouse, while preventing double-backing...
-                if current_position.spouse() is not None and not is_spouse and not start:
-                    yield from self._descendance(current_position.spouse(), is_spouse=True, start=False, count=count)
+            if not is_relative:
 
-            # We recur on each child.
-            for child in current_position.children():
-                yield from self._descendance(child, start=False, count=count)
+                if current_position.spouse() is not None:
+                    yield from self._descendance(current_position=current_position.spouse(), count=count,
+                                             verify_membership=verify_membership, verbose=verbose,
+                                             current_relationship=('spouse', current_position), is_relative=True)
+
+
+                for child in current_position.children():
+                    yield from self._descendance(current_position=child, count=count,
+                                             verify_membership=verify_membership, verbose=verbose,
+                                             current_relationship=('child', current_position), is_relative=False)
