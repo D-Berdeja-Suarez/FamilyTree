@@ -6,10 +6,73 @@ import bisect                      # Oredered lists.
 # noinspection PyUnresolvedReferences
 #import mpl_toolkits.basemap, basemap  # Map plotting.
 import sqlite3 # Databases.
+
+# noinspection PyUnresolvedReferences
+from PySide6.QtGui import QStandardItem
 from pandas.io.common import file_exists
 # noinspection PyUnresolvedReferences
 from datetime import datetime, timedelta
 from dateutil import parser
+
+# noinspection PyUnresolvedReferences
+from PySide6 import QtCore as qtc
+# noinspection PyUnresolvedReferences
+from PySide6 import QtWidgets as qtw
+# noinspection PyUnresolvedReferences
+from PySide6.QtGui import QStandardItem, QFont, QColor, QStandardItemModel
+# noinspection PyUnresolvedReferences
+from TreeViewer.UI.treeviewer import Ui_mainwwin_treeviewer
+
+########################################################### Database Template ##########################################
+def dbtemplate(filename='database.db'):
+    if file_exists(filename): os.remove(filename)
+
+    conn = sqlite3.connect(filename)
+
+    cursor = conn.cursor()
+
+    # people is a table that records family members and their parentage and spousal relationships.
+    cursor.execute("""
+            CREATE TABLE IF NOT EXISTS people (
+                person_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                fathers_name TEXT,
+                mothers_name TEXT,
+                sex CHAR(1) NOT NULL,
+                dob DATETIME NOT NULL,
+                pob TEXT,
+                father INTEGER,
+                mother INTEGER,
+                spouse INTEGER,
+                root BOOLEAN NOT NULL,
+                foreign key (father) references people (person_id), 
+                foreign key (mother) references people (person_id),
+                foreign key (spouse) references people (person_id)
+                )""")
+    # Foreign keys are references from other tables; in this case the source is the same table.
+
+    cursor.execute("""   
+                            CREATE TABLE events (
+                                event_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                                title TEXT NOT NULL,
+                                place TEXT,
+                                date DATE,
+                                time TIME)
+                            """)
+
+    # participants is a table that records who was present at each event.
+    cursor.execute("""   
+                            CREATE TABLE IF NOT EXISTS participants (
+                                person INTEGER NOT NULL,
+                                event INTEGER NOT NULL,
+                                PRIMARY KEY (person, event),
+                                FOREIGN KEY (person) REFERENCES people (person_id), 
+                                FOREIGN KEY (event) REFERENCES events (event_id))
+                            """)
+
+    conn.commit()
+
+    conn.close()
 
 ########################################################### Person Class ###############################################
 class Person:
@@ -43,8 +106,6 @@ class Person:
             self._dob = dob
 
             self._pob = pob
-
-
 
     def __str__(self): # Returns name in string format.
 
@@ -206,10 +267,57 @@ class DisconnectionException(Exception):
         super().__init__( self, msg)
         self._disconnected_member = disconnected_member
 
+################################################# Standard Entry Class #################################################
+class StandardTreeEntry(QStandardItem):
+    """
+        Customized QStandardItem for display in QTreeView.
+    """
+    def __init__(self, person, font_size = 12, height = 1, bold_font = False, color = None):
+        super().__init__()
+
+        # If no color is provided, we default to sex.
+        if color is not None:
+
+            fntcolor = color
+
+        elif person.is_male():
+
+            fntcolor = QColor(0,85,255)
+
+        else:
+
+            fntcolor = QColor(255,0,201)
+
+        output = person.name()
+
+        if person.first_surname() is not None:
+
+            output += ' ' + person.first_surname()
+
+        if person.second_surname() is not None:
+
+            output += ' ' + person.second_surname()[0]
+
+        output += ' (' + str(person.dob().year) + '-' + ')'
+
+        fnt = QFont('Avenir', font_size)
+
+        fnt.setBold(bold_font)
+
+        self.setEditable(False)
+
+        self.setForeground(fntcolor)
+
+        self.setFont(fnt)
+
+        self.setText(output)
+
+        self._height = height
+
 ############################################################### Family Tree Class ######################################
 class FamilyTree:
 
-    ########################################################### Nested _Member Class ####################################
+    ########################################################### Nested _Member Class ###################################
     class _Member:
         """
         Instances of this class keep track of a person's basic information as well as their history. These are the nodes
@@ -513,7 +621,7 @@ class FamilyTree:
             os.remove(filename)
 
         # We create a blank database.
-        self._dbtemplate(filename)
+        dbtemplate(filename)
 
         # We iterate over each person in the tree and prepare the date for entry into the database.
 
@@ -1127,59 +1235,15 @@ class FamilyTree:
 
                 yield entry
 
+    def model_descendants(self, starting_position=None):
+
+        pass
+
     ########################################################## Private Utilities #######################################
 
     # Creates database template. Overwrites existing file.
     # noinspection PyMethodMayBeStatic
-    def _dbtemplate(self, filename='database.db'):
-        if file_exists(filename): os.remove(filename)
 
-        conn = sqlite3.connect(filename)
-
-        cursor = conn.cursor()
-
-        # people is a table that records family members and their parentage and spousal relationships.
-        cursor.execute("""
-                CREATE TABLE IF NOT EXISTS people (
-                    person_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                    name TEXT NOT NULL,
-                    fathers_name TEXT,
-                    mothers_name TEXT,
-                    sex CHAR(1) NOT NULL,
-                    dob DATETIME NOT NULL,
-                    pob TEXT,
-                    father INTEGER,
-                    mother INTEGER,
-                    spouse INTEGER,
-                    root BOOLEAN NOT NULL,
-                    foreign key (father) references people (person_id), 
-                    foreign key (mother) references people (person_id),
-                    foreign key (spouse) references people (person_id)
-                    )""")
-        # Foreign keys are references from other tables; in this case the source is the same table.
-
-        cursor.execute("""   
-                                CREATE TABLE events (
-                                    event_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                                    title TEXT NOT NULL,
-                                    place TEXT,
-                                    date DATE,
-                                    time TIME)
-                                """)
-
-        # participants is a table that records who was present at each event.
-        cursor.execute("""   
-                                CREATE TABLE IF NOT EXISTS participants (
-                                    person INTEGER NOT NULL,
-                                    event INTEGER NOT NULL,
-                                    PRIMARY KEY (person, event),
-                                    FOREIGN KEY (person) REFERENCES people (person_id), 
-                                    FOREIGN KEY (event) REFERENCES events (event_id))
-                                """)
-
-        conn.commit()
-
-        conn.close()
 
     def _cut(self, new_root):
         """
@@ -1274,6 +1338,8 @@ class FamilyTree:
                                          verify_membership=verify_membership, verbose=verbose,
                                          current_relationship = ('child', current_position))
 
+
+    #TODO Fix this and its public counterpart.
     def _ascendance(self, current_position=None, count=None, verbose=False, current_relationship=None,
                      verify_membership=False, first = True):
         """
@@ -1394,3 +1460,8 @@ class FamilyTree:
                     yield from self._descendance(current_position=child, count=count,
                                              verify_membership=verify_membership, verbose=verbose,
                                              current_relationship=('child', current_position), is_relative=False)
+
+    #TODO Implement this and its public counterpart.
+    def _model_descendants(self, current_position=None):
+
+        pass

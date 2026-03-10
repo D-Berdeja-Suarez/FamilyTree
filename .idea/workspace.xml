@@ -6,6 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="7f4d8e69-144c-44e8-94f4-e19be1ccfef9" name="Changes" comment="Fixed private and public utilities to collect descendance, mother, father, spouse, children, and siblings.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TreeViewer/treeviewer.py" beforeDir="false" afterPath="$PROJECT_DIR$/TreeViewer/treeviewer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,6 +29,9 @@
     &quot;accountId&quot;: &quot;7f8578b6-233e-404a-92e6-0e0cc14667d3&quot;
   }
 }</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="DEPENDENCY_CHECKER_PROBLEMS_TAB" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 1
 }</component>
@@ -92,7 +97,15 @@
       <option name="project" value="LOCAL" />
       <updated>1773164550189</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Fixed private and public utilities to collect descendance, mother, father, spouse, children, and siblings.">
+      <option name="closed" value="true" />
+      <created>1773182136947</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1773182136947</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
