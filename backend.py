@@ -595,20 +595,6 @@ class FamilyTree:
         """
 
         for member in self._members: yield member.person
-    
-    def validate(self, person):
-        """
-        Takes in Person instance and returns corresponding _Member instance, if any.
-        :param person: Person instance.
-        :return: _Member instance or None.
-        """
-        for member in self._members:
-
-            if member.person is person:
-
-                return member
-
-        return None
 
     def save( self, filename = 'database.db', overwrite = False ):
 
@@ -751,16 +737,8 @@ class FamilyTree:
         :return:
         """
 
-        validated_subject_member = self.validate(subject_member)
-        validated_object_member = self.validate(object_member)
-
-        if validated_subject_member is None:
-
-            raise ValueError( str(subject_member) + ' is not a member of this tree.')
-
-        if validated_object_member is None:
-
-            raise ValueError(str(object_member) + ' is not a member of this tree.')
+        validated_subject_member = self._validate(subject_member)
+        validated_object_member = self._validate(object_member)
 
         if relationship == 'father':
 
@@ -768,7 +746,7 @@ class FamilyTree:
             oldfather = validated_object_member.replace_father( validated_subject_member )
 
             # If old father is disconnected...
-            if oldfather is not None and oldfather not in self._collect():
+            if oldfather is not None and oldfather not in self._collect( current_position=self._root ):
 
                 # If we are allowed to cut the tree...
                 if cut:
@@ -789,7 +767,7 @@ class FamilyTree:
 
             oldmother = validated_object_member.replace_mother(validated_subject_member)
 
-            if oldmother is not None and oldmother not in self._collect():
+            if oldmother is not None and oldmother not in self._collect( current_position=self._root ):
 
                 # If we are allowed to cut the tree...
                 if cut:
@@ -809,7 +787,7 @@ class FamilyTree:
 
             oldspouse = validated_object_member.replace_spouse(validated_subject_member)
 
-            if oldspouse is not None and oldspouse not in self._collect():
+            if oldspouse is not None and oldspouse not in self._collect( current_position=self._root ):
 
                 # If we are allowed to cut the tree...
                 if cut:
@@ -831,7 +809,7 @@ class FamilyTree:
 
                 oldmother = validated_subject_member.replace_mother( new_mother = validated_object_member )
 
-                if oldmother is not None and oldmother not in self._collect():
+                if oldmother is not None and oldmother not in self._collect( current_position=self._root ):
                     # If we are allowed to cut the tree...
                     if cut:
 
@@ -850,7 +828,7 @@ class FamilyTree:
 
                 oldfather = validated_subject_member.replace_father( new_father = validated_object_member)
 
-                if oldfather is not None and oldfather not in self._collect():
+                if oldfather is not None and oldfather not in self._collect( current_position=self._root ):
                     # If we are allowed to cut the tree...
                     if cut:
 
@@ -874,16 +852,13 @@ class FamilyTree:
         person is relationship of member.
         Incorporates Person instance into Tree as a _Member instance. Checks whether tree is disconnected as a result.
         """
-        # We check whether member, which is a Person instance, corresponds to a valid _Member. If so, we collect _Member
-        validated_member = self.validate( member )
-
-        if validated_member is None:
-
-            raise ValueError( str(member) + ' is not a member of this tree.')
 
         if person in self.members():
 
             raise ValueError( str(person) + ' is already a member of this tree.')
+
+        # We check whether member, which is a Person instance, corresponds to a valid _Member. If so, we collect _Member.
+        validated_member = self._validate( member )
 
         potential_member = self._Member( person = person )
 
@@ -893,7 +868,7 @@ class FamilyTree:
             oldfather = validated_member.replace_father( potential_member )
 
             # We check whether old father is disconnected as a result. If so, we raise an error.
-            if oldfather is not None and oldfather not in self._collect():
+            if oldfather is not None and oldfather not in self._collect( current_position=self._root ):
 
                 # If we are allowed to cut the tree...
                 if cut:
@@ -921,7 +896,7 @@ class FamilyTree:
 
             # We check whether old father is disconnected as a result. If so, we raise an error.
 
-            if oldmother is not None and oldmother not in self._collect():
+            if oldmother is not None and oldmother not in self._collect( current_position=self._root ):
 
                 # If we are allowed to cut the tree...
 
@@ -952,7 +927,7 @@ class FamilyTree:
 
             # We check whether old father is disconnected as a result. If so, we raise an error.
 
-            if oldspouse is not None and oldspouse not in self._collect():
+            if oldspouse is not None and oldspouse not in self._collect( current_position=self._root ):
 
                 # If we are allowed to cut the tree...
 
@@ -981,7 +956,7 @@ class FamilyTree:
 
                 oldmother = potential_member.replace_mother(new_mother=validated_member)
 
-                if oldmother is not None and oldmother not in self._collect():
+                if oldmother is not None and oldmother not in self._collect( current_position=self._root ):
 
                     # If we are allowed to cut the tree...
 
@@ -1007,7 +982,7 @@ class FamilyTree:
 
                 oldfather = potential_member.replace_father(new_father=validated_member)
 
-                if oldfather is not None and oldfather not in self._collect():
+                if oldfather is not None and oldfather not in self._collect( current_position=self._root ):
 
                     # If we are allowed to cut the tree...
 
@@ -1055,15 +1030,7 @@ class FamilyTree:
 
     def move_root(self, new_root):
 
-        validated_new_root = self.validate(new_root)
-
-        if validated_new_root is None:
-
-            raise ValueError(str(new_root) + ' is not a member of this tree.')
-
-        else:
-
-            self._root = validated_new_root
+        self._root = self._validate(new_root)
 
     def ancestors(self, starting_position = None):
         """
@@ -1089,41 +1056,31 @@ class FamilyTree:
 
     def siblings(self, person):
 
-        validated_person = self.validate(person)
+        validated_person = self._validate(person)
 
-        if validated_person is None:
+        people = set()
 
-            raise ValueError(str(person) + ' is not a member of this tree.')
+        if validated_person.father() is not None:
 
-        else:
+            for child in validated_person.father().children():
 
-            people = set()
+                people.add(child.person)
 
-            if validated_person.father() is not None:
+        people = set()
 
-                for child in validated_person.father().children():
+        if validated_person.mother() is not None:
 
-                    people.add(child.person)
+            for child in validated_person.mother().children():
 
-            people = set()
+                people.add(child.person)
 
-            if validated_person.mother() is not None:
-
-                for child in validated_person.mother().children():
-
-                    people.add(child.person)
-
-            return people
+        return people
 
     def father(self, person):
 
-        validated_person = self.validate(person)
+        validated_person = self._validate(person)
 
-        if validated_person is None:
-
-            raise ValueError(str(person) + ' is not a member of this tree.')
-
-        elif validated_person.father() is None:
+        if validated_person.father() is None:
 
             return None
 
@@ -1133,13 +1090,9 @@ class FamilyTree:
 
     def mother(self, person):
 
-        validated_person = self.validate(person)
+        validated_person = self._validate(person)
 
-        if validated_person is None:
-
-            raise ValueError(str(person) + ' is not a member of this tree.')
-
-        elif validated_person.mother() is None:
+        if validated_person.mother() is None:
 
             return None
 
@@ -1149,13 +1102,9 @@ class FamilyTree:
 
     def spouse(self, person):
 
-        validated_person = self.validate(person)
+        validated_person = self._validate(person)
 
-        if validated_person is None:
-
-            raise ValueError(str(person) + ' is not a member of this tree.')
-
-        elif validated_person.spouse() is None:
+        if validated_person.spouse() is None:
 
             return None
 
@@ -1165,11 +1114,7 @@ class FamilyTree:
 
     def children(self, person):
 
-        validated_person = self.validate(person)
-
-        if validated_person is None:
-
-            raise ValueError(str(person) + ' is not a member of this tree.')
+        validated_person = self._validate(person)
 
         for child in validated_person.children():
 
@@ -1183,11 +1128,13 @@ class FamilyTree:
         :return: Iteration of Person instances.
         """
 
-        validated_starting_position = self.validate(starting_position)
+        if starting_position is None:
 
-        if starting_position is not None and validated_starting_position is None:
+            validated_starting_position = self._root
 
-            raise ValueError(str(starting_position) + ' is not a member of this tree.')
+        else:
+
+            validated_starting_position = self._validate(starting_position)
 
         for entry in self._collect(verbose=verbose, current_position= validated_starting_position):
 
@@ -1213,11 +1160,13 @@ class FamilyTree:
         :return: Iteration of Person instances.
         """
 
-        validated_starting_position = self.validate(starting_position)
+        if starting_position is None:
 
-        if starting_position is not None and validated_starting_position is None:
+            validated_starting_position = self._root
 
-            raise ValueError(str(starting_position) + ' is not a member of this tree.')
+        else:
+
+            validated_starting_position = self._validate(starting_position)
 
         for entry in self._descendance(verbose=verbose, current_position= validated_starting_position):
 
@@ -1235,15 +1184,41 @@ class FamilyTree:
 
                 yield entry
 
-    def model_descendants(self, starting_position=None):
+    def model_descendants(self, starting_position = None):
 
-        pass
+        if starting_position is None:
+
+            validated_starting_position = self._root
+
+        else:
+
+            validated_starting_position = self._validate(starting_position)
+
+
+        tree_model = QStandardItemModel()
+
+        root_node = tree_model.invisibleRootItem()
+
+        self._model_descendants(current_position=validated_starting_position)
+
+        return tree_model
 
     ########################################################## Private Utilities #######################################
 
-    # Creates database template. Overwrites existing file.
-    # noinspection PyMethodMayBeStatic
+    def _validate(self, person):
+        """
+        Takes in Person instance and returns corresponding _Member instance. If no match is found, ValueError is raised.
+        :param person: Person instance.
+        :return:  _Member instance or ValueError.
+        """
 
+        for member in self._members:
+
+            if member.person is person:
+
+                return member
+
+        raise ValueError(str(person) + ' is not a member of this tree.')
 
     def _cut(self, new_root):
         """
@@ -1269,7 +1244,7 @@ class FamilyTree:
 
         return newtree
 
-    def _collect( self , current_position = None , count = None, verbose = False, current_relationship = None,
+    def _collect( self , current_position , count = None, verbose = False, current_relationship = None,
                   verify_membership = False):
         """
         Internal utility. Collects _Members of FamilyTree by visiting all of current_position's family iteratively. Note:
@@ -1278,10 +1253,6 @@ class FamilyTree:
         :param count: Set keeping track of _Members
         :return: Iteration of _Members.
         """
-
-        if current_position is None:
-
-            current_position = self._root
 
         if count is None:
 
@@ -1403,7 +1374,7 @@ class FamilyTree:
                                                 current_relationship=('mother', current_position), is_relative=True,
                                                 first=False)
 
-    def _descendance(self, current_position=None, count=None, verbose=False, current_relationship=None,
+    def _descendance(self, current_position, count=None, verbose=False, current_relationship=None,
                  verify_membership=False, is_relative=False):
         """
         Internal utility. Collects _Members of FamilyTree by visiting all of current_position's spouse and children
@@ -1414,9 +1385,6 @@ class FamilyTree:
         :param is_relative: flag to handle case of leaf-spouse.
         :return: Iteration of _Members.
         """
-
-        if current_position is None:
-            current_position = self._root
 
         if count is None:
             count = set()
@@ -1462,6 +1430,8 @@ class FamilyTree:
                                              current_relationship=('child', current_position), is_relative=False)
 
     #TODO Implement this and its public counterpart.
-    def _model_descendants(self, current_position=None):
+    def _model_descendants(self, current_position, current_node):
+
+
 
         pass

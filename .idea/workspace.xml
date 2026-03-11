@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7f4d8e69-144c-44e8-94f4-e19be1ccfef9" name="Changes" comment="Fixed private and public utilities to collect descendance, mother, father, spouse, children, and siblings.">
+    <list default="true" id="7f4d8e69-144c-44e8-94f4-e19be1ccfef9" name="Changes" comment="Re-started work on GUI.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TreeViewer/treeviewer.py" beforeDir="false" afterPath="$PROJECT_DIR$/TreeViewer/treeviewer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -30,7 +29,7 @@
   }
 }</component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="DEPENDENCY_CHECKER_PROBLEMS_TAB" />
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 1
@@ -40,16 +39,17 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.backend.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.backend.executor": "Run",
+    "Python.main.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main"
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -105,7 +105,15 @@
       <option name="project" value="LOCAL" />
       <updated>1773182136947</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Re-started work on GUI.">
+      <option name="closed" value="true" />
+      <created>1773184062073</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1773184062073</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -113,6 +121,7 @@
     <MESSAGE value="Fixed internal _collect tool. Now on to propagating changes and modifying public collect tool." />
     <MESSAGE value="Propagated changes made to _collect(). Fixed family()." />
     <MESSAGE value="Fixed private and public utilities to collect descendance, mother, father, spouse, children, and siblings." />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed private and public utilities to collect descendance, mother, father, spouse, children, and siblings." />
+    <MESSAGE value="Re-started work on GUI." />
+    <option name="LAST_COMMIT_MESSAGE" value="Re-started work on GUI." />
   </component>
 </project>
