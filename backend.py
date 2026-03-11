@@ -21,7 +21,7 @@ from PySide6 import QtWidgets as qtw
 # noinspection PyUnresolvedReferences
 from PySide6.QtGui import QStandardItem, QFont, QColor, QStandardItemModel
 # noinspection PyUnresolvedReferences
-from TreeViewer.UI.treeviewer import Ui_mainwwin_treeviewer
+from UI.TreeViewer.treeviewer import Ui_mainwwin_treeviewer
 
 ########################################################### Database Template ##########################################
 def dbtemplate(filename='database.db'):
@@ -268,7 +268,7 @@ class DisconnectionException(Exception):
         self._disconnected_member = disconnected_member
 
 ################################################# Standard Entry Class #################################################
-class StandardTreeEntry(QStandardItem):
+class TreeNode(QStandardItem):
     """
         Customized QStandardItem for display in QTreeView.
     """
@@ -1199,7 +1199,25 @@ class FamilyTree:
 
         root_node = tree_model.invisibleRootItem()
 
-        self._model_descendants(current_position=validated_starting_position)
+        starting_node = TreeNode(person = validated_starting_position.person, bold_font = True, height = 1)
+
+        root_node.appendRow(starting_node)
+
+        if validated_starting_position.spouse() is not None:
+
+            spouse_node = TreeNode(person = validated_starting_position.spouse().person, bold_font = False,
+                                       height = 1)
+
+            root_node.appendRow( spouse_node )
+
+        for child in validated_starting_position.children():
+
+            child_node = TreeNode(person = child.person, bold_font = True, height = 2)
+
+            starting_node.appendRow( child_node )
+
+            self._model_descendants(parent_member = child, parent_node = child_node, height = 2)
+
 
         return tree_model
 
@@ -1430,8 +1448,42 @@ class FamilyTree:
                                              current_relationship=('child', current_position), is_relative=False)
 
     #TODO Implement this and its public counterpart.
-    def _model_descendants(self, current_position, current_node):
+    def _model_descendants(self, parent_member, parent_node, height):
+
+        if parent_member.spouse() is not None:
+            spouse_node = TreeNode(person=parent_member.spouse().person, bold_font=False,
+                                            height=height)
+
+            parent_node.appendRow(spouse_node)
+
+        for child in parent_member.children():
+
+            child_node = TreeNode(person=child.person, bold_font=False, height=height + 1)
+
+            parent_node.appendRow(child_node)
+
+            self._model_descendants(parent_member=child, parent_node=child_node, height=height + 1)
+
+################################################### GUI TreeViewer Class ###############################################
+class TreeViewer(qtw.QMainWindow, Ui_mainwwin_treeviewer):
+    """
+        GUI window where trees may be displayed.
+    """
+
+    def __init__(self, tree):
+
+        super().__init__()
+
+        self.setupUi(self)
+
+        self._tree = tree
+
+        # Upon opening Tree Viewer, we display root's descendants.
+
+        self.treeView.setModel(self._tree.model_descendants())
+
+        #TODO Connect signals and slots.
 
 
-
-        pass
+    # noinspection PyMethodMayBeStatic
+    ######################################################### Private Methods ##########################################

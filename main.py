@@ -1,5 +1,8 @@
 # noinspection PyUnresolvedReferences
 import sqlite3, sys
+
+from PySide6.QtWidgets import QApplication
+
 # noinspection PyUnresolvedReferences
 #from PySide6.QtWidgets import QApplication
 # noinspection PyUnresolvedReferences
@@ -96,24 +99,38 @@ def exampletree():
 
     return mytree
 
+########################################################### Tree Viewer App ############################################
+def app( tree ):
+
+    application = QApplication(sys.argv)
+
+    w_tree_viewer = TreeViewer(tree)
+
+    w_tree_viewer.show()
+
+    sys.exit(application.exec())
+
 ########################################################### Experiments ################################################
 
 mytree = exampletree()
 
-persons = list(mytree.members())
+diego = mytree.root()
 
-for entry in persons:
+teofilo = mytree.father(diego)
 
-    if entry.name() == 'Teofilo':
-
-        teofilo = entry
-
-for entry in mytree.descendance(starting_position=teofilo, verbose = True):
-
-    print(entry)
-
+app(mytree)
 
 if False:
+
+    persons = list(mytree.members())
+
+    for entry in persons:
+
+        if entry.name() == 'Teofilo':
+            teofilo = entry
+
+    for entry in mytree.descendance(starting_position=teofilo, verbose=True):
+        print(entry)
 
     hello = list(mytree.members())
 
