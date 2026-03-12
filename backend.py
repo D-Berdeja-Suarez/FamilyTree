@@ -275,12 +275,15 @@ class TreeNode(QStandardItem):
     def __init__(self, person, font_size = 12, height = 1, bold_font = False, color = None):
         super().__init__()
 
+        # We store person.
+        self._person = person
+
         # If no color is provided, we default to sex.
         if color is not None:
 
             fntcolor = color
 
-        elif person.is_male():
+        elif self._person.is_male():
 
             fntcolor = QColor(0,85,255)
 
@@ -288,17 +291,17 @@ class TreeNode(QStandardItem):
 
             fntcolor = QColor(255,0,201)
 
-        output = person.name()
+        output = self._person.name()
 
-        if person.first_surname() is not None:
+        if self._person.first_surname() is not None:
 
-            output += ' ' + person.first_surname()
+            output += ' ' + self._person.first_surname()
 
-        if person.second_surname() is not None:
+        if self._person.second_surname() is not None:
 
-            output += ' ' + person.second_surname()[0]
+            output += ' ' + self._person.second_surname()[0]
 
-        output += ' (' + str(person.dob().year) + '-' + ')'
+        output += ' (' + str(person.dob().year) + '-' + ' )'
 
         fnt = QFont('Avenir', font_size)
 
@@ -313,6 +316,10 @@ class TreeNode(QStandardItem):
         self.setText(output)
 
         self._height = height
+
+    def person(self):
+
+        return self._person
 
 ############################################################### Family Tree Class ######################################
 class FamilyTree:
@@ -737,8 +744,13 @@ class FamilyTree:
         :return:
         """
 
-        validated_subject_member = self._validate(subject_member)
-        validated_object_member = self._validate(object_member)
+        if subject_member == object_member:
+
+            raise ValueError('Please provide two distinct persons.')
+
+        validated_subject_member = self._validate(subject_member, allow_none = False)
+
+        validated_object_member = self._validate(object_member, allow_none = False)
 
         if relationship == 'father':
 
@@ -857,8 +869,9 @@ class FamilyTree:
 
             raise ValueError( str(person) + ' is already a member of this tree.')
 
+
         # We check whether member, which is a Person instance, corresponds to a valid _Member. If so, we collect _Member.
-        validated_member = self._validate( member )
+        validated_member = self._validate( member, allow_none = False )
 
         potential_member = self._Member( person = person )
 
@@ -1030,33 +1043,13 @@ class FamilyTree:
 
     def move_root(self, new_root):
 
-        self._root = self._validate(new_root)
-
-    def ancestors(self, starting_position = None):
-        """
-        Collection tool. Yields an iteration of _Members that are ancestors of starting position.
-        Starting position defaults to root.
-        """
-
-        if starting_position is None: starting_position = self.root()
-
-        yield from self._ascendance( current_position = starting_position,  )
-
-    def descendants(self, starting_position = None):
-        """
-        Collection tool. Yields an iteration of _Members that are descendants of starting position.
-        Starting position defaults to root.
-        """
-
-        if starting_position is None: starting_position = self.root()
-
-        yield from self._descendance( current_position=starting_position )
+        self._root = self._validate(new_root, allow_none = False)
 
     # noinspection PyMethodMayBeStatic
 
     def siblings(self, person):
 
-        validated_person = self._validate(person)
+        validated_person = self._validate(person, allow_none = False)
 
         people = set()
 
@@ -1078,7 +1071,7 @@ class FamilyTree:
 
     def father(self, person):
 
-        validated_person = self._validate(person)
+        validated_person = self._validate(person, allow_none = False)
 
         if validated_person.father() is None:
 
@@ -1090,7 +1083,7 @@ class FamilyTree:
 
     def mother(self, person):
 
-        validated_person = self._validate(person)
+        validated_person = self._validate(person, allow_none = False)
 
         if validated_person.mother() is None:
 
@@ -1102,7 +1095,7 @@ class FamilyTree:
 
     def spouse(self, person):
 
-        validated_person = self._validate(person)
+        validated_person = self._validate(person, allow_none = False)
 
         if validated_person.spouse() is None:
 
@@ -1114,7 +1107,7 @@ class FamilyTree:
 
     def children(self, person):
 
-        validated_person = self._validate(person)
+        validated_person = self._validate(person, allow_none = False)
 
         for child in validated_person.children():
 
@@ -1128,13 +1121,8 @@ class FamilyTree:
         :return: Iteration of Person instances.
         """
 
-        if starting_position is None:
 
-            validated_starting_position = self._root
-
-        else:
-
-            validated_starting_position = self._validate(starting_position)
+        validated_starting_position = self._validate(starting_position, allow_none = True)
 
         for entry in self._collect(verbose=verbose, current_position= validated_starting_position):
 
@@ -1152,7 +1140,7 @@ class FamilyTree:
 
                 yield entry
 
-    def descendance(self, starting_position = None, verbose = False):
+    def descendants(self, starting_position = None, verbose = False):
         """
         Yields iteration of Person instances that are descendants of starting position.
         :param starting_position: Person instance.
@@ -1160,15 +1148,10 @@ class FamilyTree:
         :return: Iteration of Person instances.
         """
 
-        if starting_position is None:
 
-            validated_starting_position = self._root
+        validated_starting_position = self._validate(starting_position, allow_none = True)
 
-        else:
-
-            validated_starting_position = self._validate(starting_position)
-
-        for entry in self._descendance(verbose=verbose, current_position= validated_starting_position):
+        for entry in self._descendants(verbose=verbose, current_position= validated_starting_position):
 
             if verbose:
 
@@ -1186,14 +1169,7 @@ class FamilyTree:
 
     def model_descendants(self, starting_position = None):
 
-        if starting_position is None:
-
-            validated_starting_position = self._root
-
-        else:
-
-            validated_starting_position = self._validate(starting_position)
-
+        validated_starting_position = self._validate(starting_position, allow_none = True)
 
         tree_model = QStandardItemModel()
 
@@ -1221,22 +1197,86 @@ class FamilyTree:
 
         return tree_model
 
-    ########################################################## Private Utilities #######################################
+    def ascendants(self, starting_position = None, verbose = False):
 
-    def _validate(self, person):
+        validated_starting_position = self._validate(starting_position, allow_none = True)
+
+        for entry in self._ascendants(verbose=verbose, current_position= validated_starting_position):
+
+            if verbose:
+
+                if entry[1] != 'NA':
+
+                    yield str(str(entry[0]) + ', ' + str(entry[1]) + ' of ' + str(entry[2]) + '.')
+
+                else:
+
+                    yield str(str(entry[0]) + ', starting point.')
+
+            else:
+
+                yield entry
+
+    def model_ascendants(self, starting_position = None):
+
+        validated_starting_position = self._validate(starting_position, allow_none = True)
+
+        tree_model = QStandardItemModel()
+
+        root_node = tree_model.invisibleRootItem()
+
+        starting_node = TreeNode(person = validated_starting_position.person, bold_font = True, height = 1)
+
+        root_node.appendRow(starting_node)
+
+        if validated_starting_position.mother() is not None:
+
+            mother_node = TreeNode(person = validated_starting_position.mother().person, bold_font = False,
+                                       height = 1)
+
+            root_node.appendRow( mother_node )
+
+            self._model_ascendants(parent_member = validated_starting_position.mother().person, parent_node = mother_node, height = 2)
+
+        if validated_starting_position.father() is not None:
+            father_node = TreeNode(person=validated_starting_position.father().person, bold_font=False,
+                                   height=1)
+
+            root_node.appendRow(father_node)
+
+            self._model_ascendants(parent_member=validated_starting_position.father().person, parent_node=father_node, height=2)
+
+
+        return tree_model
+
+    ########################################################## Private Utilities #######################################
+    def _validate(self, person, allow_none = True):
         """
         Takes in Person instance and returns corresponding _Member instance. If no match is found, ValueError is raised.
-        :param person: Person instance.
+        :param person: Person instance. If person is None and allow_none is set to True, root is returned.
+        :param allow_none: If set to True, returns root if person is None.
         :return:  _Member instance or ValueError.
         """
 
-        for member in self._members:
+        if person is None:
 
-            if member.person is person:
+            if allow_none:
 
-                return member
+                return self._root
 
-        raise ValueError(str(person) + ' is not a member of this tree.')
+            else:
+
+                raise ValueError('None is not a valid input.')
+
+        else:
+
+            for member in self._members:
+
+                if member.person is person:
+
+                    return member
+
+            raise ValueError(str(person) + ' is not a member of this tree.')
 
     def _cut(self, new_root):
         """
@@ -1328,25 +1368,18 @@ class FamilyTree:
                                          current_relationship = ('child', current_position))
 
 
-    #TODO Fix this and its public counterpart.
-    def _ascendance(self, current_position=None, count=None, verbose=False, current_relationship=None,
-                     verify_membership=False, first = True):
+    def _ascendants(self, current_position, count=None, verbose=False, current_relationship=None,
+                     verify_membership=False):
         """
         Internal utility. Collects _Members of FamilyTree by visiting all of current_position's parents and their
         spouses. Note spouses of direct ascendants are treated as leaves.
         _Members needn't be in self._members.
         :param current_position: None defaults to root. May be set to different _Member.
         :param count: Set keeping track of _Members
-        :param first: flag to prevent yielding spouse of starting position.
         :return: Iteration of _Members.
         """
 
-        if current_position is None:
-
-            current_position = self._root
-
         if count is None:
-
             count = set()
 
         # Should the toggle be set to true, we check for membership.
@@ -1376,35 +1409,29 @@ class FamilyTree:
 
             count.add(current_position)
 
-            if not is_relative:
+            if current_position.mother() is not None:
 
-                if current_position.spouse() is not None and not first:
+                yield from self._ascendants(current_position=current_position.mother(), count=count,
+                                             verify_membership=verify_membership, verbose=verbose,
+                                             current_relationship=('mother', current_position))
 
-                    yield from self._ascendance(current_position=current_position.spouse(), count=count,
-                                                 verify_membership=verify_membership, verbose=verbose,
-                                                 current_relationship=('spouse', current_position), is_relative=True,
-                                                 first= False)
+            if current_position.father() is not None:
 
-                if current_position.mother() is not None:
+                yield from self._ascendants(current_position=current_position.father(), count=count,
+                                            verify_membership=verify_membership, verbose=verbose,
+                                            current_relationship=('father', current_position))
 
-                    yield from self._ascendance(current_position=current_position.mother(), count=count,
-                                                verify_membership=verify_membership, verbose=verbose,
-                                                current_relationship=('mother', current_position), is_relative=True,
-                                                first=False)
-
-    def _descendance(self, current_position, count=None, verbose=False, current_relationship=None,
+    def _descendants(self, current_position, count=None, verbose=False, current_relationship=None,
                  verify_membership=False, is_relative=False):
         """
-        Internal utility. Collects _Members of FamilyTree by visiting all of current_position's spouse and children
-        iteratively. Not spouses of direct descendants are treated as leaves.
+        Internal utility. Collects _Members of FamilyTree by visiting all of current_position's parents iteratively.
         _Members needn't be in self._members.
-        :param current_position: None defaults to root. May be set to different _Member.
         :param count: Set keeping track of _Members
-        :param is_relative: flag to handle case of leaf-spouse.
         :return: Iteration of _Members.
         """
 
         if count is None:
+
             count = set()
 
         # Should the toggle be set to true, we check for membership.
@@ -1437,17 +1464,16 @@ class FamilyTree:
             if not is_relative:
 
                 if current_position.spouse() is not None:
-                    yield from self._descendance(current_position=current_position.spouse(), count=count,
+                    yield from self._descendants(current_position=current_position.spouse(), count=count,
                                              verify_membership=verify_membership, verbose=verbose,
                                              current_relationship=('spouse', current_position), is_relative=True)
 
 
                 for child in current_position.children():
-                    yield from self._descendance(current_position=child, count=count,
+                    yield from self._descendants(current_position=child, count=count,
                                              verify_membership=verify_membership, verbose=verbose,
                                              current_relationship=('child', current_position), is_relative=False)
 
-    #TODO Implement this and its public counterpart.
     def _model_descendants(self, parent_member, parent_node, height):
 
         if parent_member.spouse() is not None:
@@ -1464,6 +1490,26 @@ class FamilyTree:
 
             self._model_descendants(parent_member=child, parent_node=child_node, height=height + 1)
 
+    def _model_ascendants(self, parent_member, parent_node, height):
+
+        if parent_member.mother() is not None:
+
+            mother_node = TreeNode(person=parent_member.mother().person, bold_font=False,
+                                   height=height+1)
+
+            parent_node.appendRow(mother_node)
+
+            self._model_ascendants(parent_member=parent_member.mother(), parent_node=mother_node, height=2)
+
+        if parent_member.father() is not None:
+
+            father_node = TreeNode(person=parent_member.father().person, bold_font=False,
+                                   height=height+1)
+
+            parent_node.appendRow(father_node)
+
+            self._model_ascendants(parent_member=parent_member.father(), parent_node=father_node, height=2)
+
 ################################################### GUI TreeViewer Class ###############################################
 class TreeViewer(qtw.QMainWindow, Ui_mainwwin_treeviewer):
     """
@@ -1474,16 +1520,64 @@ class TreeViewer(qtw.QMainWindow, Ui_mainwwin_treeviewer):
 
         super().__init__()
 
-        self.setupUi(self)
+        self.setupUi( self )
 
+        # We keep track of the associated tree.
         self._tree = tree
 
-        # Upon opening Tree Viewer, we display root's descendants.
+        # Upon opening Tree Viewer, we model, keep track of, and display root's descendants.
 
-        self.treeView.setModel(self._tree.model_descendants())
+        self._showing_descendants = True
 
-        #TODO Connect signals and slots.
+        self._model= self._tree.model_descendants()
+
+        self.treeView.setModel(self._model)
+
+        # We connect slots to signals.
+
+        self.treeView.doubleClicked.connect( self._update )
+
+        self.pb_descendance.clicked.connect(self._descendants_pushed)
+
+        self.pb_ascendance.clicked.connect(self._ascendants_pushed)
 
 
     # noinspection PyMethodMayBeStatic
     ######################################################### Private Methods ##########################################
+    def _update( self, new_centre_index  ):
+
+        # doubleClicked signal yields a QModelIndex instance. We retrieve the associated item.
+
+        new_centre = self._model.itemFromIndex(new_centre_index)
+
+        # We move root to double-clicked item.
+
+        self._tree.move_root( new_root = new_centre.person() )
+
+        # We model descendants/ascendants, replace the old model, and update the view.
+
+        if self._showing_descendants:
+
+            self._model = self._tree.model_descendants()
+
+        else:
+
+            self._model = self._tree.model_ascendants()
+
+        self.treeView.setModel(self._model)
+
+    def _descendants_pushed(self):
+
+        self._showing_descendants = True
+
+        self._model = self._tree.model_descendants()
+
+        self.treeView.setModel(self._model)
+
+    def _ascendants_pushed(self):
+
+        self._showing_descendants = False
+
+        self._model = self._tree.model_ascendants()
+
+        self.treeView.setModel(self._model)

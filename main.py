@@ -118,6 +118,8 @@ diego = mytree.root()
 
 teofilo = mytree.father(diego)
 
+mytree.move_root(teofilo)
+
 app(mytree)
 
 if False:
