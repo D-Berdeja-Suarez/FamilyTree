@@ -1,15 +1,13 @@
 # noinspection PyUnresolvedReferences
 import sqlite3, sys
-
 from PySide6.QtWidgets import QApplication
-
 # noinspection PyUnresolvedReferences
 #from PySide6.QtWidgets import QApplication
 # noinspection PyUnresolvedReferences
 #from TreeViewer.treeviewer import TreeViewer
-# noinspection PyUnresolvedReferences
 #from PySide6.QtGui import QFontDatabase
-from backend import *
+from basics import *
+from GUI import *
 import datetime
 
 ########################################################### printdatabase ##############################################
@@ -100,13 +98,24 @@ def exampletree():
     return mytree
 
 ########################################################### Tree Viewer App ############################################
-def app( tree ):
+def viewer( tree ):
 
     application = QApplication(sys.argv)
 
-    w_tree_viewer = TreeViewer(tree)
+    tree_viewer = TreeViewer(tree)
 
-    w_tree_viewer.show()
+    tree_viewer.show()
+
+    sys.exit(application.exec())
+
+########################################################### Tree Viewer App ############################################
+def welcome( ):
+
+    application = QApplication(sys.argv)
+
+    welcome_screen = WelcomeScreen()
+
+    welcome_screen.show()
 
     sys.exit(application.exec())
 
@@ -118,64 +127,8 @@ diego = mytree.root()
 
 teofilo = mytree.father(diego)
 
-mytree.move_root(teofilo)
-
-app(mytree)
+welcome()
 
 if False:
 
-    persons = list(mytree.members())
-
-    for entry in persons:
-
-        if entry.name() == 'Teofilo':
-            teofilo = entry
-
-    for entry in mytree.descendance(starting_position=teofilo, verbose=True):
-        print(entry)
-
-    hello = list(mytree.members())
-
-    mytree.save(overwrite=True)
-
-    for item in mytree.members():
-        print(item)
-
-    mytree.save(overwrite=True)
-
-    loadedtree = FamilyTree(file='database.db')
-
-    for item in loadedtree.members():
-        print(item)
-
-
-    diego = tree.root()
-
-    papa = tree.add_father(teofilo, diego)
-    mama = tree.add_mother(marisa, diego)
-    print(type(mama))
-# tree.modify_relationship(mama,'spouse', papa)
-
-#isa = tree.add_child(isabel, papa)
-#tree.modify_relationship(isa,'child',mama)
-
-    for item in tree.collectfamily():
-        print(item)
-
-    ana = Person(sex= 'M',
-                 dob = datetime.datetime(1993,5,4,0,0,0), first_name = 'Ana', first_last='Berdeja', second_last='Suarez', pob = 'Mexico City' )
-
-
-
-    tree = FamilyTree(root=diego)
-
-    tree.add_member( person = papa, relationship = 'father', member = tree.root())
-
-
-
-
-    tree.save(overwrite = True)
-
-    printdatabase()
-
-
+    pass
