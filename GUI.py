@@ -1,9 +1,17 @@
 from PySide6 import QtWidgets as qtw
+from PySide6.QtCore import Signal
 from PySide6.QtGui import QStandardItem, QFont, QColor
 from UI.TreeViewer.treeviewer import Ui_treeviewer
 from UI.WelcomeScreen.welcomescreen import Ui_welcomescreen
+from UI.PersonInputScreen.personinputscreen import Ui_personinputscreen
+from basics import FamilyTree as FamilyTree
+from basics import Person as Person
+from datetime import datetime
 
-################################################# GUI Standard Entry Class #################################################
+MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+          'August', 'September', 'October', 'November', 'December']
+
+################################################# GUI Standard Entry Class #############################################
 class TreeNode(QStandardItem):
     """
         Customized QStandardItem for display in QTreeView.
@@ -173,8 +181,122 @@ class TreeViewer(qtw.QMainWindow, Ui_treeviewer):
 ################################################### GUI WelcomeScreen Class ############################################
 class WelcomeScreen(qtw.QMainWindow, Ui_welcomescreen):
 
+    ################################################### Public Methods #################################################
     def __init__(self):
 
         super().__init__()
 
         self.setupUi( self )
+
+        self.pb_new.pressed.connect( self._new_pressed )
+
+    ################################################### Private Methods ################################################
+    def _new_pressed(self):
+
+        self.input_window = PersonInputScreen()
+
+        self.input_window.lab_contextual.setText('Please provide root\'s personal information:')
+
+        self.input_window.show()
+
+################################################### GUI PersonInputScreen Class ########################################
+class PersonInputScreen(qtw.QMainWindow, Ui_personinputscreen):
+
+    # Remember: signals must be declared as class variables, not instance variables.
+    person_signal = Signal()
+
+    ################################################### Public Methods #################################################
+    def __init__(self):
+
+        super().__init__()
+
+        self.setupUi(self)
+
+        # Flag to help us keep track of whether a warning message has been shown to the user.
+        self._warning_label = None
+
+        # We add the days of the year to the QtComboBox.
+        for i in range(31):
+
+            self.cb_day.addItem(str(i+1))
+
+        # We do the same for the months of the year.
+        for month in MONTHS:
+
+            self.cb_month.addItem(month)
+
+        # We connect signals to slots.
+        self.pb_done.pressed.connect( self._done_pressed )
+        self.pb_clear.pressed.connect( self.close )
+
+    ############################################### Private Methods ####################################################
+
+    def _done_pressed(self):
+        """
+        Collects personal information and returns a Person instance.
+        :return: 0 if not enough information is provided; Person instance if collection is successful.
+        """
+
+        # We first collect whatever the user has provided as input, if anything.
+        name = self.le_name.text()
+
+        first_last = self.le_first_last.text()
+
+        second_last = self.le_second_last.text()
+
+        day = self.cb_day.currentIndex()+1
+
+        month = self.cb_month.currentIndex()+1
+
+        year = self.sp_year.value()
+
+        if self.rb_male.isChecked():
+
+            sex = 'M'
+
+        else:
+
+            sex = 'F'
+
+        # If user hasn't provided enough information, we display a warning label.
+        if name == '' or first_last == '' or (not self.rb_male.isChecked() and not self.rb_female.isChecked()):
+
+            # If we haven't shown a warning label yet, we first have to create it.
+            if self._warning_label is None:
+
+                self._warning_label = qtw.QLabel(self.widget)
+
+                self.widget.layout().addWidget(self._warning_label)
+
+            self._warning_label.setText('Please provide a first name, first last name, and sex.')
+
+            return 0
+
+        # If the user hasn't provided a valid birthday, we display a warning label.
+        try:
+
+            birthday = datetime(year=year, month=month, day=day)
+
+        except ValueError:
+
+            # If we haven't shown a warning label yet, we first have to create it.
+            if self._warning_label is None:
+
+                self._warning_label = qtw.QLabel(self.widget)
+
+                self.widget.layout().addWidget(self._warning_label)
+
+            self._warning_label.setText('Please provide a valid birthday.')
+
+            return 0
+
+        # Should enough information be provided, we create a Person instance.
+        person = Person(first_name = name, first_last=first_last, second_last=second_last,dob = birthday, sex=sex)
+
+        # And emit a signal containing it.
+        self.person_signal.emit( person )
+
+        # Finally, we close the window.
+        self.close()
+
+        return 1

@@ -6,11 +6,7 @@ from pandas.io.common import file_exists
 from datetime import datetime
 from dateutil import parser
 
-# QT
 from PySide6.QtGui import QStandardItemModel
-
-# Siblings
-from GUI import *
 
 # Useful libraries:
 # timedelta
@@ -1172,7 +1168,7 @@ class FamilyTree:
             mother_node = TreeNode(person = validated_starting_position.mother().person, bold_font = False,
                                        height = 1)
 
-            root_node.appendRow( mother_node )
+            starting_node.appendRow( mother_node )
 
             self._model_ascendants(parent_member = validated_starting_position.mother(), parent_node = mother_node, height = 2)
 
@@ -1180,7 +1176,7 @@ class FamilyTree:
             father_node = TreeNode(person=validated_starting_position.father().person, bold_font=False,
                                    height=1)
 
-            root_node.appendRow(father_node)
+            starting_node.appendRow(father_node)
 
             self._model_ascendants(parent_member=validated_starting_position.father(), parent_node=father_node, height=2)
 

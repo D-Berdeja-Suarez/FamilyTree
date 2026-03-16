@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QApplication
 #from PySide6.QtGui import QFontDatabase
 from basics import *
 from GUI import *
-import datetime
+from datetime import datetime
 
 ########################################################### printdatabase ##############################################
 def printdatabase():
@@ -119,16 +119,26 @@ def welcome( ):
 
     sys.exit(application.exec())
 
+########################################################### Person Input App ###########################################
+def inputperson( ):
+
+    application = QApplication(sys.argv)
+
+    input_screen = PersonInputScreen()
+
+    input_screen.show()
+
+    sys.exit(application.exec())
+
 ########################################################### Experiments ################################################
-
-mytree = exampletree()
-
-diego = mytree.root()
-
-teofilo = mytree.father(diego)
 
 welcome()
 
 if False:
+    mytree = exampletree()
 
-    pass
+    diego = mytree.root()
+
+    teofilo = mytree.father(diego)
+
+    personinputscreen = inputperson()
