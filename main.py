@@ -6,8 +6,7 @@ from PySide6.QtWidgets import QApplication
 # noinspection PyUnresolvedReferences
 #from TreeViewer.treeviewer import TreeViewer
 #from PySide6.QtGui import QFontDatabase
-from basics import *
-from GUI import *
+from basics import WelcomeScreen, FamilyTree, Person, TreeViewer, PersonInputScreen
 from datetime import datetime
 
 ########################################################### printdatabase ##############################################
@@ -29,49 +28,49 @@ def printdatabase():
 def exampletree():
 
     teofilo = Person( sex='M',
-                       dob = datetime.datetime(1954,8,22, 0,0,0),
+                       dob = datetime(1954,8,22, 0,0,0),
                        first_name='Teofilo',
                        first_last='Berdeja',
                        second_last='Prieto',
                        pob = 'Mexico City')
 
     marisa = Person( sex='F',
-                       dob = datetime.datetime(1958,3,25, 0,0,0),
+                       dob = datetime(1958,3,25, 0,0,0),
                        first_name='Maria Luisa',
                        first_last='Suarez',
                        second_last='Abiega',
                        pob = 'Mexico City')
 
     isabel = Person( sex='F',
-                       dob = datetime.datetime(1988,7,7, 0,0,0),
+                       dob = datetime(1988,7,7, 0,0,0),
                        first_name='Isabel',
                        first_last='Berdeja',
                        second_last='Suarez',
                        pob = 'Mexico City')
 
     ines = Person( sex='F',
-                       dob = datetime.datetime(1989,8,23, 0,0,0),
+                       dob = datetime(1989,8,23, 0,0,0),
                        first_name='Ines',
                        first_last='Berdeja',
                        second_last='Suarez',
                        pob = 'Mexico City')
 
     belen = Person( sex='F',
-                       dob = datetime.datetime(1991,5,15, 0,0,0),
+                       dob = datetime(1991,5,15, 0,0,0),
                        first_name='Belen',
                        first_last='Berdeja',
                        second_last='Suarez',
                        pob = 'Mexico City')
 
     diego = Person(sex= 'M',
-                       dob = datetime.datetime(1993,5,4,0,0,0),
+                       dob = datetime(1993,5,4,0,0,0),
                        first_name = 'Diego',
                        first_last='Berdeja',
                        second_last='Suarez',
                        pob = 'Mexico City' )
 
     ana = Person( sex='F',
-                       dob = datetime.datetime(1994,9,3, 0,0,0),
+                       dob = datetime(1994,9,3, 0,0,0),
                        first_name='Ana',
                        first_last='Berdeja',
                        second_last='Suarez',
@@ -106,7 +105,7 @@ def viewer( tree ):
 
     tree_viewer.show()
 
-    sys.exit(application.exec())
+    sys.exit(application.exec_())
 
 ########################################################### Tree Viewer App ############################################
 def welcome( ):
@@ -117,7 +116,7 @@ def welcome( ):
 
     welcome_screen.show()
 
-    sys.exit(application.exec())
+    sys.exit(application.exec_())
 
 ########################################################### Person Input App ###########################################
 def inputperson( ):
@@ -128,7 +127,7 @@ def inputperson( ):
 
     input_screen.show()
 
-    sys.exit(application.exec())
+    sys.exit(application.exec_())
 
 ########################################################### Experiments ################################################
 
