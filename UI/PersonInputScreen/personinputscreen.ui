@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>624</width>
-    <height>506</height>
+    <width>663</width>
+    <height>504</height>
    </rect>
   </property>
   <property name="font">
@@ -24,21 +24,24 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QLabel" name="lab_contextual">
-      <property name="text">
-       <string>Contextual prompt goes here</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QWidget" name="widget_sex_and_dob" native="true">
-      <layout class="QHBoxLayout" name="horizontalLayout">
+     <widget class="QWidget" name="widget_sex" native="true">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QWidget" name="widget_sex" native="true">
-         <layout class="QVBoxLayout" name="verticalLayout_2">
+        <widget class="QLabel" name="lab_contextual">
+         <property name="text">
+          <string>Contextual prompt goes here</string>
+         </property>
+         <property name="scaledContents">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="widget_radiobuttons" native="true">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QWidget" name="widget_radiobuttons" native="true">
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <widget class="QWidget" name="widget_3" native="true">
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
              <item>
               <widget class="QLabel" name="label">
                <property name="frameShape">
@@ -66,22 +69,15 @@
                </property>
               </widget>
              </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="widget_6" native="true">
+            <layout class="QVBoxLayout" name="verticalLayout_3">
              <item>
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Orientation::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QWidget" name="widget_3" native="true">
-               <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <widget class="QWidget" name="widget_4" native="true">
+               <layout class="QHBoxLayout" name="horizontalLayout_5">
                 <item>
                  <widget class="QLabel" name="label_2">
                   <property name="text">
@@ -91,6 +87,19 @@
                    <set>Qt::AlignmentFlag::AlignCenter</set>
                   </property>
                  </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_2">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                 <item>
                  <widget class="QComboBox" name="cb_day"/>
@@ -117,71 +126,80 @@
                </layout>
               </widget>
              </item>
-            </layout>
-           </widget>
-          </item>
-          <item>
-           <widget class="QWidget" name="widget" native="true">
-            <layout class="QVBoxLayout" name="verticalLayout_4">
              <item>
-              <widget class="QLineEdit" name="le_name">
-               <property name="placeholderText">
-                <string>First Name *</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="le_first_last">
-               <property name="placeholderText">
-                <string>First Surname *</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="le_second_last">
-               <property name="placeholderText">
-                <string>Second Surname</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="le_pob">
-               <property name="placeholderText">
-                <string>Place of Birth</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="verticalSpacer">
-               <property name="orientation">
-                <enum>Qt::Orientation::Vertical</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>20</width>
-                 <height>40</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QWidget" name="widget_2" native="true">
-               <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <widget class="QWidget" name="widget_7" native="true">
+               <layout class="QHBoxLayout" name="horizontalLayout_6">
                 <item>
-                 <widget class="QPushButton" name="pb_done">
-                  <property name="text">
-                   <string>Done</string>
+                 <widget class="QLineEdit" name="le_pob">
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                   </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="pb_clear">
-                  <property name="text">
-                   <string>Cancel</string>
+                  <property name="placeholderText">
+                   <string>Place of Birth</string>
                   </property>
                  </widget>
                 </item>
                </layout>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="widget" native="true">
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <widget class="QLineEdit" name="le_name">
+            <property name="placeholderText">
+             <string>First Name *</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="le_first_last">
+            <property name="placeholderText">
+             <string>First Surname *</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="le_second_last">
+            <property name="placeholderText">
+             <string>Second Surname</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Orientation::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QWidget" name="widget_2" native="true">
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <widget class="QPushButton" name="pb_done">
+               <property name="text">
+                <string>Done</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pb_clear">
+               <property name="text">
+                <string>Cancel</string>
+               </property>
               </widget>
              </item>
             </layout>
@@ -200,7 +218,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>624</width>
+     <width>663</width>
      <height>36</height>
     </rect>
    </property>

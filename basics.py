@@ -1721,6 +1721,9 @@ class PersonInputScreen(qtw.QMainWindow, Ui_personinputscreen):
 
         year = self.sp_year.value()
 
+        # NP if pob is not provided.
+        pob = self.le_pob.text() if self.le_pob.text() != '' else 'NP'
+
         if self.rb_male.isChecked():
 
             sex = 'M'
@@ -1762,10 +1765,8 @@ class PersonInputScreen(qtw.QMainWindow, Ui_personinputscreen):
             return 0
 
         # Should enough information be provided, we create a Person instance.
-        person = Person(first_name = name, first_last=first_last, second_last=second_last,dob = birthday, sex=sex)
-
-        # TODO: test.
-        print(name + first_last + second_last + str(birthday)+sex)
+        person = Person(first_name = name, first_last=first_last, second_last=second_last,dob = birthday,
+                            sex=sex, pob=pob)
 
         # And emit a signal containing it.
         self.person_signal.emit( person )
