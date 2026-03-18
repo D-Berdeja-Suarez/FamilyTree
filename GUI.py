@@ -1,10 +1,12 @@
 from PySide6 import QtWidgets as qtw
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QStandardItem, QFont, QColor
+from pandas.io.common import file_exists
+
 from UI.TreeViewer.treeviewer import Ui_treeviewer
 from UI.WelcomeScreen.welcomescreen import Ui_welcomescreen
 from UI.PersonInputScreen.personinputscreen import Ui_personinputscreen
-from basics import FamilyTree as FamilyTree
+from UI.OverwriteDialog.overwritedialog import Ui_overwritedialog
 from basics import Person as Person
 from datetime import datetime
 
@@ -193,11 +195,23 @@ class WelcomeScreen(qtw.QMainWindow, Ui_welcomescreen):
     ################################################### Private Methods ################################################
     def _new_pressed(self):
 
-        self.input_window = PersonInputScreen()
+        filename = self.lineEdit.text() + '.db'
 
-        self.input_window.lab_contextual.setText('Please provide root\'s personal information:')
+        if file_exists(filename):
 
-        self.input_window.show()
+            overwrite_dialog = OverwriteDialog( filename = filename )
+
+            overwrite_dialog.open()
+
+            overwrite_dialog.accepted.connect( lambda: self._new_tree( filename = filename ) )
+
+        else:
+
+            self._new_tree(filename=filename)
+
+    def _new_tree(self, filename):
+
+        pass
 
 ################################################### GUI PersonInputScreen Class ########################################
 class PersonInputScreen(qtw.QMainWindow, Ui_personinputscreen):
@@ -300,3 +314,20 @@ class PersonInputScreen(qtw.QMainWindow, Ui_personinputscreen):
         self.close()
 
         return 1
+
+################################################### GUI FilenameDialog Class ########################################
+class OverwriteDialog(qtw.QDialog, Ui_overwritedialog):
+
+    # Remember: signals must be declared as class variables, not instance variables.
+    signal = Signal()
+
+    ################################################### Public Methods #################################################
+    def __init__(self, filename):
+
+        super().__init__()
+
+        self.setupUi(self)
+
+        self.label.setText('Overwrite ' + filename + '?')
+
+        self.buttonBox.accepted.connect( lambda: self.signal.emit(filename) )

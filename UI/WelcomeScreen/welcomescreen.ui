@@ -6,23 +6,47 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>389</width>
-    <height>431</height>
+    <width>319</width>
+    <height>186</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Welcome Screen</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
-     <widget class="QWidget" name="widget_2" native="true"/>
+     <widget class="QWidget" name="widget" native="true">
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QLineEdit" name="lineEdit">
+         <property name="text">
+          <string>familytree</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>.db</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </item>
     <item>
      <widget class="QWidget" name="widget_3" native="true">
-      <layout class="QVBoxLayout" name="verticalLayout">
+      <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QWidget" name="widget_4" native="true"/>
+        <widget class="QPushButton" name="pb_new">
+         <property name="text">
+          <string>New</string>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QPushButton" name="pb_load">
@@ -31,18 +55,8 @@
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QPushButton" name="pb_new">
-         <property name="text">
-          <string>New</string>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
-    </item>
-    <item>
-     <widget class="QWidget" name="widget" native="true"/>
     </item>
    </layout>
   </widget>
@@ -51,7 +65,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>389</width>
+     <width>319</width>
      <height>36</height>
     </rect>
    </property>
