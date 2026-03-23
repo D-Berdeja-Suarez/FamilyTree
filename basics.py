@@ -1484,7 +1484,7 @@ class TreeNode(QStandardItem):
 
         if self._person.second_surname() is not None:
 
-            output += ' ' + self._person.second_surname()[0]
+            output += ' ' + self._person.second_surname()
 
         output += ' (' + str(person.dob().year) + ' - ' + '*)'
 
@@ -1515,6 +1515,10 @@ class TreeViewer(qtw.QMainWindow, Ui_treeviewer):
 
         self.setupUi( self )
 
+        # We display the filename in the status bar.
+
+        self.statusbar.showMessage( filename )
+
         # We keep track of the associated tree and filename.
         self._tree = tree
 
@@ -1522,7 +1526,7 @@ class TreeViewer(qtw.QMainWindow, Ui_treeviewer):
 
         # Upon opening Tree Viewer, we model, keep track of, and display root's descendants, expanded.
 
-        self._showing_descendants = True
+        self.rb_desc.setChecked(True)
 
         self._is_expanded = True
 
@@ -1536,9 +1540,9 @@ class TreeViewer(qtw.QMainWindow, Ui_treeviewer):
 
         self.treeView.doubleClicked.connect( self._update )
 
-        self.pb_descendance.clicked.connect(self._descendants_pushed)
+        self.rb_desc.clicked.connect(self._descendants_pushed)
 
-        self.pb_ascendance.clicked.connect(self._ascendants_pushed)
+        self.rb_asc.clicked.connect(self._ascendants_pushed)
 
         self.pb_expand_all.clicked.connect(self._expand_all_pushed)
 
@@ -1559,7 +1563,7 @@ class TreeViewer(qtw.QMainWindow, Ui_treeviewer):
 
         # We model descendants/ascendants, replace the old model, and update the view.
 
-        if self._showing_descendants:
+        if self.rb_desc.Checked():
 
             self._model = self._tree.model_descendants()
 
@@ -1579,8 +1583,6 @@ class TreeViewer(qtw.QMainWindow, Ui_treeviewer):
 
     def _descendants_pushed(self):
 
-        self._showing_descendants = True
-
         self._model = self._tree.model_descendants()
 
         self.treeView.setModel(self._model)
@@ -1594,8 +1596,6 @@ class TreeViewer(qtw.QMainWindow, Ui_treeviewer):
             self.treeView.collapseAll()
 
     def _ascendants_pushed(self):
-
-        self._showing_descendants = False
 
         self._model = self._tree.model_ascendants()
 
@@ -1630,6 +1630,8 @@ class WelcomeScreen(qtw.QMainWindow, Ui_welcomescreen):
         super().__init__()
 
         self.setupUi( self )
+
+        self.statusbar.hide()
 
         self.pb_new.pressed.connect( self._new_pressed )
 
@@ -1668,6 +1670,8 @@ class WelcomeScreen(qtw.QMainWindow, Ui_welcomescreen):
     def _open_tree_viewer(self, tree, filename):
 
         self._tree_viewer = TreeViewer(tree, filename)
+
+        self._tree_viewer.show()
 
 ################################################### GUI PersonInputScreen Class ########################################
 class PersonInputScreen(qtw.QMainWindow, Ui_personinputscreen):

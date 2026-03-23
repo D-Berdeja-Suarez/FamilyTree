@@ -15,15 +15,16 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QHBoxLayout, QHeaderView, QMainWindow,
-    QMenuBar, QPushButton, QSizePolicy, QSpacerItem,
-    QStatusBar, QTreeView, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QHBoxLayout, QHeaderView, QLabel,
+    QMainWindow, QMenuBar, QPushButton, QRadioButton,
+    QSizePolicy, QSpacerItem, QStatusBar, QTreeView,
+    QVBoxLayout, QWidget)
 
 class Ui_treeviewer(object):
     def setupUi(self, treeviewer):
         if not treeviewer.objectName():
             treeviewer.setObjectName(u"treeviewer")
-        treeviewer.resize(800, 600)
+        treeviewer.resize(811, 535)
         self.wid_centralwidget = QWidget(treeviewer)
         self.wid_centralwidget.setObjectName(u"wid_centralwidget")
         self.verticalLayout = QVBoxLayout(self.wid_centralwidget)
@@ -32,10 +33,39 @@ class Ui_treeviewer(object):
         self.widget.setObjectName(u"widget")
         self.horizontalLayout_3 = QHBoxLayout(self.widget)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.treeView = QTreeView(self.widget)
+        self.treeView.setObjectName(u"treeView")
+
+        self.horizontalLayout_3.addWidget(self.treeView)
+
         self.widget_5 = QWidget(self.widget)
         self.widget_5.setObjectName(u"widget_5")
         self.verticalLayout_3 = QVBoxLayout(self.widget_5)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.widget_8 = QWidget(self.widget_5)
+        self.widget_8.setObjectName(u"widget_8")
+        self.widget_8.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+        self.verticalLayout_4 = QVBoxLayout(self.widget_8)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.rb_desc = QRadioButton(self.widget_8)
+        self.rb_desc.setObjectName(u"rb_desc")
+        self.rb_desc.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+
+        self.verticalLayout_4.addWidget(self.rb_desc)
+
+        self.rb_asc = QRadioButton(self.widget_8)
+        self.rb_asc.setObjectName(u"rb_asc")
+        self.rb_asc.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+
+        self.verticalLayout_4.addWidget(self.rb_asc)
+
+
+        self.verticalLayout_3.addWidget(self.widget_8)
+
+        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.verticalLayout_3.addItem(self.verticalSpacer_2)
+
         self.pb_collapse_all = QPushButton(self.widget_5)
         self.pb_collapse_all.setObjectName(u"pb_collapse_all")
 
@@ -50,53 +80,25 @@ class Ui_treeviewer(object):
 
         self.verticalLayout_3.addItem(self.verticalSpacer)
 
+        self.pb_load = QPushButton(self.widget_5)
+        self.pb_load.setObjectName(u"pb_load")
+
+        self.verticalLayout_3.addWidget(self.pb_load)
+
 
         self.horizontalLayout_3.addWidget(self.widget_5)
-
-        self.treeView = QTreeView(self.widget)
-        self.treeView.setObjectName(u"treeView")
-
-        self.horizontalLayout_3.addWidget(self.treeView)
 
 
         self.verticalLayout.addWidget(self.widget)
 
         self.widget_2 = QWidget(self.wid_centralwidget)
         self.widget_2.setObjectName(u"widget_2")
-        self.horizontalLayout = QHBoxLayout(self.widget_2)
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.widget_3 = QWidget(self.widget_2)
-        self.widget_3.setObjectName(u"widget_3")
-        self.horizontalLayout_2 = QHBoxLayout(self.widget_3)
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.pb_ascendance = QPushButton(self.widget_3)
-        self.pb_ascendance.setObjectName(u"pb_ascendance")
-
-        self.horizontalLayout_2.addWidget(self.pb_ascendance)
-
-        self.pb_descendance = QPushButton(self.widget_3)
-        self.pb_descendance.setObjectName(u"pb_descendance")
-
-        self.horizontalLayout_2.addWidget(self.pb_descendance)
-
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout_2.addItem(self.horizontalSpacer)
-
-
-        self.horizontalLayout.addWidget(self.widget_3)
-
-        self.widget_4 = QWidget(self.widget_2)
-        self.widget_4.setObjectName(u"widget_4")
-        self.verticalLayout_2 = QVBoxLayout(self.widget_4)
+        self.verticalLayout_2 = QVBoxLayout(self.widget_2)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.pb_load = QPushButton(self.widget_4)
-        self.pb_load.setObjectName(u"pb_load")
+        self.lab_contextual = QLabel(self.widget_2)
+        self.lab_contextual.setObjectName(u"lab_contextual")
 
-        self.verticalLayout_2.addWidget(self.pb_load)
-
-
-        self.horizontalLayout.addWidget(self.widget_4)
+        self.verticalLayout_2.addWidget(self.lab_contextual)
 
 
         self.verticalLayout.addWidget(self.widget_2)
@@ -104,7 +106,7 @@ class Ui_treeviewer(object):
         treeviewer.setCentralWidget(self.wid_centralwidget)
         self.menubar = QMenuBar(treeviewer)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 800, 36))
+        self.menubar.setGeometry(QRect(0, 0, 811, 36))
         treeviewer.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(treeviewer)
         self.statusbar.setObjectName(u"statusbar")
@@ -117,10 +119,11 @@ class Ui_treeviewer(object):
 
     def retranslateUi(self, treeviewer):
         treeviewer.setWindowTitle(QCoreApplication.translate("treeviewer", u"Tree Viewer", None))
-        self.pb_collapse_all.setText(QCoreApplication.translate("treeviewer", u"Collapse All", None))
-        self.pb_expand_all.setText(QCoreApplication.translate("treeviewer", u"Expand All", None))
-        self.pb_ascendance.setText(QCoreApplication.translate("treeviewer", u"\u2190 Ascendance", None))
-        self.pb_descendance.setText(QCoreApplication.translate("treeviewer", u"Descendance \u2192", None))
-        self.pb_load.setText(QCoreApplication.translate("treeviewer", u"Load FamilyTree", None))
+        self.rb_desc.setText(QCoreApplication.translate("treeviewer", u"Ascendance", None))
+        self.rb_asc.setText(QCoreApplication.translate("treeviewer", u"Descendance", None))
+        self.pb_collapse_all.setText(QCoreApplication.translate("treeviewer", u"Collapse", None))
+        self.pb_expand_all.setText(QCoreApplication.translate("treeviewer", u"Expand", None))
+        self.pb_load.setText(QCoreApplication.translate("treeviewer", u"Save", None))
+        self.lab_contextual.setText(QCoreApplication.translate("treeviewer", u"Contextual label", None))
     # retranslateUi
 

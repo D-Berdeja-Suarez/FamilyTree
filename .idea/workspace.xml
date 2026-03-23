@@ -6,9 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="7f4d8e69-144c-44e8-94f4-e19be1ccfef9" name="Changes" comment="Re-started work on GUI.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UI/PersonInputScreen/personinputscreen.py" beforeDir="false" afterPath="$PROJECT_DIR$/UI/PersonInputScreen/personinputscreen.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UI/PersonInputScreen/personinputscreen.ui" beforeDir="false" afterPath="$PROJECT_DIR$/UI/PersonInputScreen/personinputscreen.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/TreeViewer/treeviewer.py" beforeDir="false" afterPath="$PROJECT_DIR$/UI/TreeViewer/treeviewer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/TreeViewer/treeviewer.ui" beforeDir="false" afterPath="$PROJECT_DIR$/UI/TreeViewer/treeviewer.ui" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/basics.py" beforeDir="false" afterPath="$PROJECT_DIR$/basics.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
