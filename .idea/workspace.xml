@@ -4,11 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7f4d8e69-144c-44e8-94f4-e19be1ccfef9" name="Changes" comment="Re-started work on GUI.">
+    <list default="true" id="7f4d8e69-144c-44e8-94f4-e19be1ccfef9" name="Changes" comment="Working on GUI.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UI/TreeViewer/treeviewer.py" beforeDir="false" afterPath="$PROJECT_DIR$/UI/TreeViewer/treeviewer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UI/TreeViewer/treeviewer.ui" beforeDir="false" afterPath="$PROJECT_DIR$/UI/TreeViewer/treeviewer.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basics.py" beforeDir="false" afterPath="$PROJECT_DIR$/basics.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -49,19 +46,19 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.GUI.executor": "Run",
-    "Python.backend.executor": "Run",
-    "Python.basics.executor": "Run",
-    "Python.main.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.GUI.executor&quot;: &quot;Run&quot;,
+    &quot;Python.backend.executor&quot;: &quot;Run&quot;,
+    &quot;Python.basics.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/UI/TreeViewer" />
@@ -139,7 +136,15 @@
       <option name="project" value="LOCAL" />
       <updated>1773198640846</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Working on GUI.">
+      <option name="closed" value="true" />
+      <created>1774308750114</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1774308750114</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -148,6 +153,7 @@
     <MESSAGE value="Propagated changes made to _collect(). Fixed family()." />
     <MESSAGE value="Fixed private and public utilities to collect descendance, mother, father, spouse, children, and siblings." />
     <MESSAGE value="Re-started work on GUI." />
-    <option name="LAST_COMMIT_MESSAGE" value="Re-started work on GUI." />
+    <MESSAGE value="Working on GUI." />
+    <option name="LAST_COMMIT_MESSAGE" value="Working on GUI." />
   </component>
 </project>

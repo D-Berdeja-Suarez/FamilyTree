@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QApplication
 from basics import WelcomeScreen
 
 
-########################################################### Tree Viewer App ############################################
+########################################################### Ignore #####################################################
 def welcome( ):
 
     application = QApplication(sys.argv)
