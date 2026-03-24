@@ -681,16 +681,6 @@ class FamilyTree:
 
                 response_children = [ entry[0] for entry in response_children ]
 
-            # TEST:
-
-            print('TEST: load()\n')
-
-            print('Response children:\n')
-
-            print(response_children)
-
-            print('\n\n')
-
             for candidate_key, candidate_child in people:
 
                 # We establish marriages.
