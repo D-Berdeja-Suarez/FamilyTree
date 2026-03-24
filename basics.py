@@ -1,10 +1,11 @@
-import os
+import os, sys
 import bisect # Oredered lists.
 import sqlite3 # Databases.
 from datetime import datetime
 from dateutil import parser
 from PySide6 import QtWidgets as qtw
 from PySide6.QtCore import Signal
+from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QStandardItem, QFont, QColor, QStandardItemModel
 from pandas.io.common import file_exists
 from UI.TreeViewer.treeviewer import Ui_treeviewer
@@ -1821,7 +1822,7 @@ class PersonInputScreen(qtw.QMainWindow, Ui_personinputscreen):
 
         return 1
 
-################################################### GUI FilenameDialog Class ########################################
+################################################### GUI FilenameDialog Class ###########################################
 class OverwriteDialog(qtw.QDialog, Ui_overwritedialog):
 
     # Remember: signals must be declared as class variables, not instance variables.
@@ -1837,3 +1838,14 @@ class OverwriteDialog(qtw.QDialog, Ui_overwritedialog):
         self.label.setText('Overwrite ' + filename + '?')
 
         self.buttonBox.accepted.connect( lambda: self.signal.emit(filename) )
+
+########################################################### Execute Application ########################################
+def execute_app( ):
+
+    application = QApplication(sys.argv)
+
+    welcome_screen = WelcomeScreen()
+
+    welcome_screen.show()
+
+    sys.exit(application.exec_())

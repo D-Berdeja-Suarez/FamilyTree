@@ -1,21 +1,7 @@
-import sys
-from PySide6.QtWidgets import QApplication
-from basics import WelcomeScreen
+from basics import execute_app
 
-
-########################################################### Ignore #####################################################
-def welcome( ):
-
-    application = QApplication(sys.argv)
-
-    welcome_screen = WelcomeScreen()
-
-    welcome_screen.show()
-
-    sys.exit(application.exec_())
-
-########################################################### Execute by running the following ###########################
+########################################################### Execute app by running the following #######################
 
 if __name__ == "__main__":
 
-    welcome()
+    execute_app()
