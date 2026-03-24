@@ -614,6 +614,8 @@ class FamilyTree:
 
         cursor = conn.cursor()
 
+
+
         cursor.executemany("""INSERT INTO people VALUES(?,?,?,?,?,?,?,?,?,?,?)""", save_data)
 
         conn.commit()
@@ -634,6 +636,7 @@ class FamilyTree:
         # The people set will help us establish relationships.
         people = set()
 
+        # We innitialize _Member instances, add them to _members, and add them to people along with their keys.
         for entry in cursor.execute('SELECT * FROM people').fetchall():
 
             member = FamilyTree._Member(first_name=entry[1], first_last=entry[2],
@@ -652,45 +655,57 @@ class FamilyTree:
         # We establish parentage and marriage.
         for parent_key, potential_parent in people:
 
-            # TEST
-
-
-
+            # response_children is a list of potential_parent's children.
             if potential_parent.person.is_male():
 
                 # father column stores key of father.
-                response_parent = cursor.execute("""  SELECT person_id FROM people WHERE father = (?) """,
+                response_children = cursor.execute("""  SELECT person_id FROM people WHERE father = ? """,
                                                  (parent_key,)).fetchall()
 
             else:
 
-                response_parent = cursor.execute("""  SELECT person_id FROM people WHERE mother = ? """,
+                response_children = cursor.execute("""  SELECT person_id FROM people WHERE mother = ? """,
                                                  (parent_key,)).fetchall()
 
+            # response_spouse is a single integer
             response_spouse = cursor.execute("""  SELECT person_id FROM people WHERE spouse = ? """,
-                                             (parent_key,)).fetchall()
+                                             (parent_key,)).fetchone()
+
+            # We extract the integer.
+            if response_spouse is not None:
+
+                response_spouse = response_spouse[0]
+
+            # We extract a list of integers.
+            if len(response_children) !=0:
+
+                response_children = [ entry[0] for entry in response_children ]
+
+            # TEST:
+
+            print('TEST: load()\n')
+
+            print('Response children:\n')
+
+            print(response_children)
+
+            print('\n\n')
+
+            for candidate_key, candidate_child in people:
+
+                # We establish marriages.
+                if candidate_key == response_spouse:
+                    candidate_child.replace_spouse(potential_parent)
+
+                if len(response_children) != 0:
+
+                    # We establish parentage.
+                    if candidate_key in response_children:
+
+                        potential_parent.add_child( candidate_child )
 
 
-            for candidate_key, candidate in people:
 
-                # We add the candidate to the FamilyTree's members' list.
-                self._members.add( candidate )
-
-                # We establish male parentage. Note that replacing candidate's parent automatically adds candidate as parent's child.
-                if candidate_key in response_parent and potential_parent.person.is_male():
-
-                    candidate.replace_father(potential_parent)
-
-                # We establish female parentage.
-                elif candidate_key in response_parent and not potential_parent.person.sex().is_male():
-
-                    candidate.replace_mother(potential_parent)
-
-                # We establish marriages. Naturally, there will be a two-fold redundant call per marriage in tree.
-                # Failsafes that mitigate this effect have been put in place.
-                if candidate_key in response_spouse:
-
-                    candidate.replace_spouse(potential_parent)
 
         conn.close()
 
