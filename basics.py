@@ -77,10 +77,11 @@ class Person(object):
     in the positional list ADT.
     """
 
-    __slots__ = ( '_name', '_first_last', '_second_last', '_sex', '_dob', '_pob')
+    __slots__ = ( '_name', '_first_last', '_second_last', '_sex', '_dob', '_pob', '_dod', '_pod')
 
     ################################################################ Public Methods ####################################
-    def __init__(self, sex = None, dob = None, first_name = None, first_last = None, second_last = None, pob = None):
+    def __init__(self, sex = None, dob = None, first_name = None, first_last = None, second_last = None, pob = None,
+                 pod = None, dod = None):
 
         # If not enough data is provided, we launch input prompt.
         if sex is None or dob is None or first_name is None or ( second_last is None and first_last is None):
@@ -99,9 +100,16 @@ class Person(object):
 
             if not isinstance(dob, datetime): raise ValueError('Must provide a datetime object for dob.')
 
+            if dod is not None and not isinstance(dod, datetime): raise ValueError('Must provide a datetime object for dod.')
+
             self._dob = dob
 
             self._pob = pob
+
+            self._pod = pod
+
+            self._dod = dod
+
 
     def __str__(self): # Returns name in string format.
 
@@ -109,10 +117,9 @@ class Person(object):
 
         if self._first_last: response += ' ' + self._first_last
 
-        if self._second_last: response += ' ' + self._second_last
+        if self._second_last: response += ', ' + self._second_last
 
         return response
-
 
     # Hash depends on immutable parameters.
     def __hash__(self):
@@ -139,6 +146,10 @@ class Person(object):
     def dob(self): return self._dob
 
     def pob(self): return self._pob
+
+    def dod(self): return self._dod
+
+    def pod(self): return self._pod
 
     def sex(self): return self._sex
 
@@ -275,7 +286,8 @@ class FamilyTree:
 
         ############################################################ Public Methods ####################################
         def __init__(self, person = None, sex = None, dob = None, first_name = None, first_last = None,
-                     second_last = None, pob=None, father=None, mother=None, children=None, spouse=None):
+                     second_last = None, pob=None, father=None, mother=None, children=None, spouse=None,
+                     dod = None, pod = None):
             """
             Underlying Person instance handles the case in which insufficient data is provided.
             :param person: Person instance.
@@ -296,7 +308,7 @@ class FamilyTree:
 
                 # This iniialization handles the case in which insufficient data is provided.
                 self.person = Person(sex=sex, dob=dob, first_name=first_name, first_last=first_last,
-                                     second_last=second_last, pob=pob)
+                                     second_last=second_last, pob=pob, dod=dod, pod=pod)
 
                 # List of events sorted according to time. We add birthday upon init.
                 self._history = [Event(title='Birth', date=dob, place=pob)]
@@ -310,6 +322,10 @@ class FamilyTree:
                 self.person = person
 
                 self._history = [Event(title='Birth', date=person.dob(), place=person.pob())]
+
+                if dod is not None:
+
+                    self.add_event(Event(title='Death', date=dod, place=str(person.pod())))
 
             # Father, mother, and spouse are _Member instances.
             self._father = father
