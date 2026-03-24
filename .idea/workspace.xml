@@ -5,7 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7f4d8e69-144c-44e8-94f4-e19be1ccfef9" name="Changes" comment="Working on GUI.">
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/TreeViewer/treeviewer.py" beforeDir="false" afterPath="$PROJECT_DIR$/UI/TreeViewer/treeviewer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/TreeViewer/treeviewer.ui" beforeDir="false" afterPath="$PROJECT_DIR$/UI/TreeViewer/treeviewer.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/basics.py" beforeDir="false" afterPath="$PROJECT_DIR$/basics.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -184,7 +187,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774374461661</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Working on GUI.">
+      <option name="closed" value="true" />
+      <created>1774374641927</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1774374641927</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">

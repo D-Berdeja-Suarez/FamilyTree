@@ -1543,7 +1543,9 @@ class TreeViewer(qtw.QMainWindow, Ui_treeviewer):
 
         # We display the filename in the status bar.
 
-        self.statusbar.showMessage( filename )
+        self.statusbar.showMessage( ' ' + filename )
+
+        self.lab_contextual.setText('')
 
         # We keep track of the associated tree and filename.
         self._tree = tree
@@ -1554,7 +1556,7 @@ class TreeViewer(qtw.QMainWindow, Ui_treeviewer):
 
         self.rb_desc.setChecked(True)
 
-        self._is_expanded = True
+        self.rb_expanded.setChecked(True)
 
         self._model= self._tree.model_descendants()
 
@@ -1570,10 +1572,9 @@ class TreeViewer(qtw.QMainWindow, Ui_treeviewer):
 
         self.rb_asc.clicked.connect(self._ascendants_pushed)
 
-        self.pb_expand_all.clicked.connect(self._expand_all_pushed)
+        self.rb_expanded.clicked.connect(self.treeView.expandAll)
 
-        self.pb_collapse_all.clicked.connect(self._collapse_all_pushed)
-
+        self.rb_collapsed.clicked.connect(self.treeView.collapseAll)
 
     # noinspection PyMethodMayBeStatic
     ######################################################### Private Methods ##########################################
@@ -1599,7 +1600,7 @@ class TreeViewer(qtw.QMainWindow, Ui_treeviewer):
 
         self.treeView.setModel(self._model)
 
-        if self._is_expanded:
+        if self.rb_expanded.isChecked():
 
             self.treeView.expandAll()
 
@@ -1613,7 +1614,7 @@ class TreeViewer(qtw.QMainWindow, Ui_treeviewer):
 
         self.treeView.setModel(self._model)
 
-        if self._is_expanded:
+        if self.rb_expanded.isChecked():
 
             self.treeView.expandAll()
 
@@ -1627,25 +1628,13 @@ class TreeViewer(qtw.QMainWindow, Ui_treeviewer):
 
         self.treeView.setModel(self._model)
 
-        if self._is_expanded:
+        if self.rb_expanded.isChecked():
 
             self.treeView.expandAll()
 
         else:
 
             self.treeView.collapseAll()
-
-    def _expand_all_pushed(self):
-
-        self._is_expanded = True
-
-        self.treeView.expandAll()
-
-    def _collapse_all_pushed(self):
-
-        self._is_expanded = False
-
-        self.treeView.collapseAll()
 
 ################################################### GUI WelcomeScreen Class ############################################
 class WelcomeScreen(qtw.QMainWindow, Ui_welcomescreen):
