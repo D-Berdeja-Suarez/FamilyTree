@@ -652,16 +652,20 @@ class FamilyTree:
         # We establish parentage and marriage.
         for parent_key, potential_parent in people:
 
+            # TEST
+
+
+
             if potential_parent.person.is_male():
 
                 # father column stores key of father.
-                response_parent = cursor.execute("""  SELECT person_id FROM people WHERE father = ? """,
+                response_parent = cursor.execute("""  SELECT person_id FROM people WHERE father = (?) """,
                                                  (parent_key,)).fetchall()
 
             else:
 
                 response_parent = cursor.execute("""  SELECT person_id FROM people WHERE mother = ? """,
-                                                 parent_key).fetchall()
+                                                 (parent_key,)).fetchall()
 
             response_spouse = cursor.execute("""  SELECT person_id FROM people WHERE spouse = ? """,
                                              (parent_key,)).fetchall()
@@ -1579,7 +1583,7 @@ class TreeViewer(qtw.QMainWindow, Ui_treeviewer):
 
         # We model descendants/ascendants, replace the old model, and update the view.
 
-        if self.rb_desc.Checked():
+        if self.rb_desc.isChecked():
 
             self._model = self._tree.model_descendants()
 
@@ -1651,6 +1655,8 @@ class WelcomeScreen(qtw.QMainWindow, Ui_welcomescreen):
 
         self.pb_new.pressed.connect( self._new_pressed )
 
+        self.pb_load.pressed.connect( self._load_pressed )
+
     ################################################### Private Methods ################################################
     def _new_pressed(self):
         """
@@ -1688,6 +1694,20 @@ class WelcomeScreen(qtw.QMainWindow, Ui_welcomescreen):
         self._tree_viewer = TreeViewer(tree, filename)
 
         self._tree_viewer.show()
+
+    def _load_pressed(self):
+
+        filename = self.lineEdit.text() + '.db'
+
+        # If file does not exist, we create a new file as well.
+        if not file_exists(filename):
+
+            self._new_pressed()
+
+        # If file exists, we load tree viewer with tree loaded from file.
+        else:
+
+            self._open_tree_viewer(tree=FamilyTree(file=filename), filename=filename)
 
 ################################################### GUI PersonInputScreen Class ########################################
 class PersonInputScreen(qtw.QMainWindow, Ui_personinputscreen):
